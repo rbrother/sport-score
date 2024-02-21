@@ -16,21 +16,17 @@
   (createTheme (clj->js {:palette {:mode "dark"}})))
 
 (defn main-panel []
-  (let [page @(rf/subscribe [:page])]
+  (let [page @(rf/subscribe [:page])
+        status @(rf/subscribe [:status])]
     [theme-provider {:theme dark-theme}
      [:div
-      [:h2 "Sport Tracker"]
-      [:button.navigation {:on-click #(rf/dispatch [::aws/save])} "Save Data"]
+      [:h2 "Sport Tracker"
+       [:button.navigation {:on-click #(rf/dispatch [::aws/save])} "Save Data"]]
+      [:div status]
       (case page
           :years [years/view]
           :year [year/view]
           :session [session/view])]]))
-
-;; SUBS
-
-(rf/reg-sub :navigation (fn [db _] (:navigation db)))
-
-(rf/reg-sub :page :<- [:navigation] (fn [nav _] (:page nav)))
 
 ;; EVENTS
 

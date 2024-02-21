@@ -1,8 +1,6 @@
 (ns sports.util
   (:require [clojure.string :refer [split split-lines]]
-            [cljs.pprint :refer [pprint]]
-            [goog.string :as gstring]
-            [goog.string.format]))
+            [cljs.pprint :refer [pprint]]))
 
 (defn index-by-id [list]
   (into {} (map (fn [{:keys [id] :as item}] [id item]) list)))
@@ -20,3 +18,6 @@
 
 (defn starts-with [start str]
   (when str (= start (subs str 0 (count start)))))
+
+(defn pprint-str [str]
+  (with-out-str (pprint str)))

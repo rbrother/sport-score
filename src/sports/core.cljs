@@ -4,6 +4,7 @@
    [re-frame.core :as re-frame]
    [reagent-dev-tools.core :as dev-tools]
    [sports.styles]
+   [sports.subs]
    [sports.main :as main]))
 
 (defn get-element-by-id [id] (.getElementById js/document id))
