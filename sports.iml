@@ -19,9 +19,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Leiningen: arttuka/reagent-material-ui-js:5.11.12-0" level="project" />
-    <orderEntry type="library" name="Leiningen: arttuka/reagent-material-ui:5.11.12-0" level="project" />
-    <orderEntry type="library" name="Leiningen: camel-snake-kebab:0.4.3" level="project" />
     <orderEntry type="library" name="Leiningen: cheshire:5.10.0" level="project" />
     <orderEntry type="library" name="Leiningen: cljs-ajax:0.8.4" level="project" />
     <orderEntry type="library" name="Leiningen: com.andrewmcveigh/cljs-time:0.5.2" level="project" />

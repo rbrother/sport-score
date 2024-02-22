@@ -17,8 +17,7 @@
                  [metosin/reagent-dev-tools "1.0.0"]
                  [rm-hull/infix "0.3.3"]
                  [cljs-ajax "0.8.4"]
-                 [day8.re-frame/http-fx "0.2.4"]
-                 [arttuka/reagent-material-ui "5.11.12-0"]]
+                 [day8.re-frame/http-fx "0.2.4"]]
 
   :source-paths ["src"]
 

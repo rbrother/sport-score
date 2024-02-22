@@ -13,8 +13,7 @@
   [binaryage/devtools "1.0.6"]
   [medley "1.4.0"]
   [com.andrewmcveigh/cljs-time "0.5.2"]
-  [cljs-ajax "0.8.4"]
-  [arttuka/reagent-material-ui "5.11.12-0"]]
+  [cljs-ajax "0.8.4"]]
 
  :dev-http
  {8280 "resources/public"
