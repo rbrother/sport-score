@@ -1,11 +1,11 @@
 (ns sports.core
   (:require
-   [reagent.dom :as rdom]
-   [re-frame.core :as re-frame]
-   [reagent-dev-tools.core :as dev-tools]
-   [sports.styles]
-   [sports.subs]
-   [sports.main :as main]))
+    [reagent.dom :as rdom]
+    [re-frame.core :as re-frame]
+    [reagent-dev-tools.core :as dev-tools]
+    [sports.styles]
+    [sports.subs]
+    [sports.main :as main]))
 
 (defn get-element-by-id [id] (.getElementById js/document id))
 
@@ -19,4 +19,3 @@
   (re-frame/dispatch-sync [::main/initialize-db])
   (dev-tools/start! {:state-atom re-frame.db/app-db})
   (mount-root))
-

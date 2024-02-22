@@ -1,10 +1,8 @@
 (ns sports.year
-  (:require [re-frame.core :as rf]
+  (:require [clojure.string :as s]
+            [re-frame.core :as rf]
             [reagent.core :as reagent]
-            [cljs.pprint :refer [pprint]]
-            [clojure.string :as s]
             [sports.config :refer [debug?]]
-            [sports.log :as log]
             [sports.util :as util]))
 
 (defn new-session-widget []
@@ -31,7 +29,7 @@
 
 (defn view []
   (let [year @(rf/subscribe [:selected-year])
-        year-data @(rf/subscribe [:year-data])
+        year-data @(rf/subscribe [:year-data year])
         players @(rf/subscribe [:players])
         player-cols (s/join " " (repeat (count players) "100px"))]
     [:div

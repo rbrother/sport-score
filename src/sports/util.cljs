@@ -1,6 +1,5 @@
 (ns sports.util
-  (:require [clojure.string :refer [split split-lines]]
-            [cljs.pprint :refer [pprint]]))
+  (:require [cljs.pprint :refer [pprint]]))
 
 (defn index-by-id [list]
   (into {} (map (fn [{:keys [id] :as item}] [id item]) list)))
@@ -11,7 +10,7 @@
                     s
                     (str (subs s 0 max-len) "...")))
 
-(defn show [val]    ;; Use in middle of calculation chain to show intermediate value
+(defn show [val] ;; Use in middle of calculation chain to show intermediate value
   (do
     (pprint val)
     val))

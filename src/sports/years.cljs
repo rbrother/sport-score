@@ -1,7 +1,5 @@
 (ns sports.years
-  (:require [re-frame.core :as rf]
-            [cljs.pprint :refer [pprint]]
-            [sports.log :as log]))
+  (:require [re-frame.core :as rf]))
 
 (defn view []
   (let [years @(rf/subscribe [:years])]

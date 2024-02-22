@@ -31,10 +31,10 @@
       error (.error js/console (string/join content))
       color (.log js/console (str "%c" (string/join content)) (str "color: " (name color)))
       :else (.log js/console (string/join content)))
-    (first data)))                                          ;; return first item as value, so can use in middle of expressions
+    (first data))) ;; return first item as value, so can use in middle of expressions
 
 (defn log-data [data]
-  (log  "-------------------\n" (pprint-s data))
+  (log "-------------------\n" (pprint-s data))
   data)
 
 (def intercept
@@ -46,13 +46,6 @@
                    after-db (get effects :db)
                    [only-in-orig only-in-after _] (diff orig-db after-db)
                    before (str only-in-orig)
-                   after (str only-in-after)
-                   length (+ (count before) (count after))
-                   changes nil #_(cond
-                             (or (not orig-db) (not after-db)) ""
-                             (zero? length) ""
-                             (< length 80) (str ": " before " -> " after)
-                             :else (str (if only-in-orig (str "\n    before:\n" (pprint-s only-in-orig)) "")
-                                        "\n    after:\n" (pprint-s only-in-after)))]
-               (log "[EVENT " (format-time-long (time/now))"] " (str (first (:event coeffects)) changes))
+                   after (str only-in-after)]
+               (log "[EVENT " (format-time-long (time/now)) "] " (str (first (:event coeffects))))
                context))))

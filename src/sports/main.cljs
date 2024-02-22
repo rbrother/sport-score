@@ -1,9 +1,9 @@
 (ns sports.main
   (:require [re-frame.core :as rf]
-            [sports.years :as years]
-            [sports.year :as year]
+            [sports.aws :as aws]
             [sports.session :as session]
-            [sports.aws :as aws]))
+            [sports.year :as year]
+            [sports.years :as years]))
 
 ;; VIEWS
 

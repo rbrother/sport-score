@@ -1,7 +1,8 @@
 (ns sports.subs
   (:require [re-frame.core :as rf]
-            [cljs.pprint :refer [pprint]]
-            [sports.log :as log]))
+            [sports.calculations :as calc]))
+
+(rf/reg-sub :players (fn [db _] ["Roope", "Kari", "Niklas"]))
 
 (rf/reg-sub :status (fn [db _] (:status db)))
 
@@ -15,11 +16,13 @@
 
 (rf/reg-sub :years (fn [db _] (:years db)))
 
-(rf/reg-sub :year-data :<- [:years] :<- [:selected-year]
-  (fn [[years selected] _] (get years selected)))
+(rf/reg-sub :year-data :<- [:years]
+  (fn [years [_ year]] (get years year)))
 
-(rf/reg-sub :session-data :<- [:year-data] :<- [:selected-session]
-  (fn [[year-data session-id]] (get year-data session-id)))
-
-(rf/reg-sub :players (fn [db _] ["Roope", "Kari", "Niklas"]))
+;; See https://day8.github.io/re-frame/subscriptions/ for more complex subscription syntax like below
+(rf/reg-sub :session-data
+  (fn [[_ year _date]]
+    (rf/subscribe [:year-data year]))
+  (fn [year-data [_ _year date]]
+    (calc/analyze-session (get year-data date))))
 
