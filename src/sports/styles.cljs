@@ -12,12 +12,14 @@
   [:.left {:text-align "left"}]
   [:.left {:font-weight "bold"}]
   [:button.navigation {:border-width 0, :background "#2070FF", :color :black,
-                       :padding "12px", :margin "12px"
-                       :font-size "20px", :font-weight "bold"
-                       :border-radius "6px", :min-width "220px"
+                       :padding "8px 20px 8px 20px", :margin "12px"
+                       :font-size "16px", :font-weight "bold"
+                       :border-radius "6px"
                        :outline 0
                        :box-shadow "0px 12px 12px rgba(1, 1, 1, 0.5)"}]
   [:button.navigation:hover {:background-color "#40A0FF"}]
+  [:input {:margin "6px", :padding "2px"}]
+  [:input.score {:width "40px", :text-align "center"}]
   [:input:read-only {:color "#777"}]
   [:div.grid {:display "grid" :border "1px solid gray" :grid-gap "8px"
               :margin "8px 0 8px 0" :padding "8px"}]

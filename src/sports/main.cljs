@@ -24,15 +24,16 @@
        [:button.navigation {:on-click #(rf/dispatch [::aws/save])} "Save Data"]]
       [:div status]
       (case page
-          :years [years/view]
-          :year [year/view]
-          :session [session/view])]]))
+        :years [years/view]
+        :year [year/view]
+        :session [session/view])]]))
 
 ;; EVENTS
 
 (rf/reg-event-fx ::initialize-db
   (fn [_ _]
-    {:db {:years {}
+    {:db {:years {:2023 {}, :2024 {}}
           :navigation {:page :years}}
-     :dispatch [::aws/load-data]}))
+     :dispatch [::aws/load-data]
+     }))
 

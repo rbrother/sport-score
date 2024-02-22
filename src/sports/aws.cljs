@@ -35,7 +35,7 @@
                 {:file filename}
                 [::items-downloaded]]}))
 
-(defn current-year [] (.getFullYear (js/Date.)))
+(defn current-year [] (keyword (str (.getFullYear (js/Date.)))))
 
 (rf/reg-event-db ::items-downloaded [log/intercept]
   (fn [db [_ {items :body}]]

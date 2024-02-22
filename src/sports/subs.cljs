@@ -11,6 +11,8 @@
 
 (rf/reg-sub :selected-year :<- [:navigation] (fn [nav _] (:year nav)))
 
+(rf/reg-sub :selected-session :<- [:navigation] (fn [nav _] (:session nav)))
+
 (rf/reg-sub :years (fn [db _] (:years db)))
 
 (rf/reg-sub :year-data :<- [:years] :<- [:selected-year]
