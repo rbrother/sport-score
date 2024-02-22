@@ -20,9 +20,9 @@
         status @(rf/subscribe [:status])]
     [theme-provider {:theme dark-theme}
      [:div
-      [:h2 "Sport Tracker"
-       [:button.navigation {:on-click #(rf/dispatch [::aws/save])} "Save Data"]]
-      [:div status]
+      [:div [:span.large.bold "Sport Tracker"]
+       [:button.navigation {:on-click #(rf/dispatch [::aws/save])} "Save Data"]
+       status]
       (case page
         :years [years/view]
         :year [year/view]
@@ -34,6 +34,5 @@
   (fn [_ _]
     {:db {:years {:2023 {}, :2024 {}}
           :navigation {:page :years}}
-     :dispatch [::aws/load-data]
-     }))
+     :dispatch [::aws/load-data]}))
 

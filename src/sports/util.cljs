@@ -21,3 +21,15 @@
 
 (defn pprint-str [str]
   (with-out-str (pprint str)))
+
+(defn set-local-state
+  ([state path]
+   (set-local-state state path identity))
+  ([state path coerce-fn]
+   (fn [event]
+     (let [value (-> event .-target .-value)]
+       (swap! state #(assoc-in % path (coerce-fn value)))))))
+
+(defn try-parse-int [s]
+  (let [parsed (js/parseInt s)]
+    (if (js/isNaN parsed) s parsed)))

@@ -18,4 +18,8 @@
 (rf/reg-sub :year-data :<- [:years] :<- [:selected-year]
   (fn [[years selected] _] (get years selected)))
 
+(rf/reg-sub :session-data :<- [:year-data] :<- [:selected-session]
+  (fn [[year-data session-id]] (get year-data session-id)))
+
 (rf/reg-sub :players (fn [db _] ["Roope", "Kari", "Niklas"]))
+
