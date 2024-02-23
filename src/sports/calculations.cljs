@@ -5,27 +5,15 @@
 
 (def players ["Roope", "Kari", "Niklas"])
 
-(defn amend-set [[a b]]
-  (let [a-winner? (cond
-                    (not (:score a)) false
-                    (not (:score b)) true
-                    :else (> (:score a) (:score b)))]
-    [(assoc a :winner? a-winner?)
-     (assoc b :winner? (not a-winner?))]))
-
 (defn count-victories [sets player opponent]
   (->> sets
-       (filter (fn [[a b]]
-                 (or (and (= (:name a) player)
-                          (= (:name b) opponent)
-                          (:winner? a))
-                     (and (= (:name b) player)
-                          (= (:name a) opponent)
-                          (:winner? b)))))
+       (filter (fn [[{winner-name :name} {loser-name :name}]]
+                 (and (= winner-name player)
+                      (= loser-name opponent))))
        count))
 
-(defn collect-player-victories [sets player all-payers]
-  (let [opponents (disj (set all-payers) player)]
+(defn collect-player-victories [sets player session-payers]
+  (let [opponents (disj (set session-payers) player)]
     (->> opponents, sort
          (mapv (fn [opp]
                  (let [player-victories (count-victories sets player opp)
@@ -43,24 +31,22 @@
 (defn sum-of [seq selector-fn]
   (->> seq (map selector-fn) (apply +)))
 
-(defn analyze-session [session-seq]
-  (let [amended-sets (mapv amend-set session-seq)
-        players (->> session-seq
+(defn analyze-session [session-sets]
+  (let [session-players (->> session-sets
                      (mapcat (fn [[a b]] [(:name a) (:name b)]))
                      set, sort)]
-    {:players (->> players
+    {:players (->> session-players
                    (mapv (fn [player]
-                           (let [matches (collect-player-victories amended-sets player players)]
+                           (let [matches (collect-player-victories session-sets player session-players)]
                              {:name player
                               :matches matches
                               :victories (sum-of matches :victories)
                               :losses (sum-of matches :losses)
                               :points (sum-of matches :points)}))))
-     :sets amended-sets}))
+     :sets session-sets}))
 
 (defn year-summary [year-data]
   (let [amended-sessions (->> year-data (map-vals analyze-session))]
-    (pprint amended-sessions)
     {:sessions amended-sessions
      :players (->> players
                    (mapv (fn [name]

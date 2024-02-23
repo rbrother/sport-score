@@ -4,7 +4,6 @@ A [re-frame](https://github.com/day8/re-frame) application for tracking of score
 
 # TODO
 
-* Remove explicit determination of :winner? since the first score is always now considered winner
 * Pre-sets (without loser points): ignore when determining set-difference for 1.5 point score
 
 ### Project Overview

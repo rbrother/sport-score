@@ -1,17 +1,17 @@
 (ns sports.session
   (:require [re-frame.core :as rf]
             [reagent.core :as reagent]
+            [sports.calculations :as calc]
             [sports.log :as log]
             [sports.util :as util]))
 
 (defn player-score [index state]
-  (let [all-players @(rf/subscribe [:players])
-        player-data (get @state index)]
+  (let [player-data (get @state index)]
     [:<>
      [:select
       {:value (:name player-data)
        :on-change (util/set-local-state state [index :name])}
-      (for [p all-players]
+      (for [p calc/players]
         ^{:key p} [:option {:value p} p])]
      "Score"
      [:input.score {:type :text
@@ -20,9 +20,8 @@
                                                      util/try-parse-int)}]]))
 
 (defn new-game-widget []
-  (let [all-players @(rf/subscribe [:players])
-        local-state (reagent/atom [{:name (first all-players) :score nil}
-                                   {:name (second all-players) :score nil}])]
+  (let [local-state (reagent/atom [{:name (first calc/players) :score nil}
+                                   {:name (second calc/players) :score nil}])]
     (fn []
       [:div
        [:div.grid {:style {:width "500px"
@@ -41,17 +40,15 @@
      [:div.bold "#"] [:div.bold "Player 1"] [:div.bold "Score"] [:div.bold "Player 2"] [:div]]
     (->> sets
          (map-indexed
-           (fn [index [{a-name :name, a-score :score, a-winner? :winner?}
-                       {b-name :name, b-score :score, b-winner? :winner?}]]
-             (let [a-style (if a-winner? "winner" "loser")
-                   b-style (if b-winner? "winner" "loser")]
-               [:<> [:div (inc index)]
-                [:div {:class a-style} a-name]
-                [:div
-                 [:span {:class a-style} a-score] " - "
-                 [:span {:class b-style} b-score]]
-                [:div {:class b-style} b-name]
-                [:div]]))))))
+           (fn [index [{winner-name :name, winner-score :score}
+                       {loser-name :name, loser-score :score}]]
+             [:<> [:div (inc index)]
+              [:div.winner winner-name]
+              [:div
+               [:span.winner winner-score] " - "
+               [:span.loser loser-score]]
+              [:div.loser loser-name]
+              [:div]])))))
 
 (defn match-line [name {:keys [opponent victories losses net-victories points]}]
   [[:div name] [:div opponent] [:div.winner victories]
