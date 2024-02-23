@@ -5,6 +5,7 @@
             [re-frame.core :as rf]
             [medley.core :refer [find-first]]
             [reagent.core :as reagent]
+            [sports.calculations :as calc]
             [sports.config :refer [debug?]]
             [sports.util :as util :refer [attr=]]))
 
@@ -22,15 +23,14 @@
         "Add Session"]])))
 
 (defn session-rows [year-data]
-  (let [players-all @(rf/subscribe [:players])]
-    (into [:<>]
-          (for [[date {:keys [players sets]}] (sort-by first year-data)]
-            [:<>
-             [:div.link {:on-click #(rf/dispatch [::goto-date date])} date]
-             [:div (count sets)]
-             (into [:<>] (for [name players-all]
-                           (let [player (->> players (find-first (attr= :name name)))]
-                             [:div (:points player)])))]))))
+  (into [:<>]
+        (for [[date {:keys [players sets]}] (sort-by first year-data)]
+          [:<>
+           [:div.link {:on-click #(rf/dispatch [::goto-date date])} date]
+           [:div (count sets)]
+           (into [:<>] (for [name calc/players]
+                         (let [player (->> players (find-first (attr= :name name)))]
+                           [:div (:points player)])))])))
 
 (defn raw-data-editor []
   (let [year-data @(rf/subscribe [:current-year-data])
@@ -46,22 +46,30 @@
         [:textarea {:rows 30, :cols 80, :value (:text @state)
                     :on-change (util/set-local-state state [:text])}]]])))
 
-(defn view []
+(defn points-table []
   (let [year @(rf/subscribe [:selected-year])
         year-data @(rf/subscribe [:year-summary year])
-        players @(rf/subscribe [:players])
-        player-cols (s/join " " (repeat (count players) "100px"))]
-    [:div
-     [:div [:span.large.bold "Year " year]
-      [:button.navigation {:on-click #(rf/dispatch [::all-years])} "← Years list"]]
-     [:div "Points"]
-     [:div.grid {:style {:grid-template-columns (str "100px 100px " player-cols)}}
-      [:div.bold "Date"] [:div.bold "Sets"]
-      (into [:<>] (for [p players] [:div.bold p]))
-      [session-rows (:sessions year-data)]
-      (into [:<> [:div "TOTAL"] [:div "..."]] (for [p players] [:div.bold "..."]))]
-     [new-session-widget]
-     (when debug? [raw-data-editor])]))
+        player-cols (s/join " " (repeat (count calc/players) "100px"))]
+    [:div.grid {:style {:grid-template-columns (str "100px 100px " player-cols)}}
+     [:div.bold "Date"] [:div.bold "Sets"]
+     (into [:<>] (for [p calc/players] [:div.bold p]))
+     [:div.row-line]
+     [session-rows (:sessions year-data)]
+     [:div.row-line]
+     (into [:<> [:div "TOTAL"] [:div]]
+           (for [p calc/players]
+             [:div.bold (->> (:players year-data)
+                             (find-first (attr= :name p))
+                             :points)]))]))
+
+(defn view []
+  [:div
+   [:div [:span.large.bold "Year " @(rf/subscribe [:selected-year])]
+    [:button.navigation {:on-click #(rf/dispatch [::all-years])} "← Years list"]]
+   [:div "Points"]
+   [points-table]
+   [new-session-widget]
+   (when debug? [raw-data-editor])])
 
 ;; EVENTS
 

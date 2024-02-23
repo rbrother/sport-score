@@ -1,5 +1,9 @@
 (ns sports.calculations
-  (:require [medley.core :refer [map-vals]]))
+  (:require [medley.core :refer [map-vals]]
+            [clojure.pprint :refer [pprint]]
+            [sports.util :refer [attr=]]))
+
+(def players ["Roope", "Kari", "Niklas"])
 
 (defn amend-set [[a b]]
   (let [a-winner? (cond
@@ -56,6 +60,13 @@
 
 (defn year-summary [year-data]
   (let [amended-sessions (->> year-data (map-vals analyze-session))]
+    (pprint amended-sessions)
     {:sessions amended-sessions
-     ;; summary data
-     }))
+     :players (->> players
+                   (mapv (fn [name]
+                           {:name name
+                            :points (->> amended-sessions, vals
+                                         (mapcat :players)
+                                         (filter (attr= :name name))
+                                         (map :points)
+                                         (apply +))})))}))

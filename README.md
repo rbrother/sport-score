@@ -1,9 +1,11 @@
 # Sports tracker
 
-A [re-frame](https://github.com/day8/re-frame) application designed to ... well, that part is up to
-you.
+A [re-frame](https://github.com/day8/re-frame) application for tracking of scores in 1-to-1 sports.
 
-## Getting Started
+# TODO
+
+* Remove explicit determination of :winner? since the first score is always now considered winner
+* Pre-sets (without loser points): ignore when determining set-difference for 1.5 point score
 
 ### Project Overview
 

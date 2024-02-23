@@ -2,8 +2,6 @@
   (:require [re-frame.core :as rf]
             [sports.calculations :as calc]))
 
-(rf/reg-sub :players (fn [db _] ["Roope", "Kari", "Niklas"]))
-
 (rf/reg-sub :status (fn [db _] (:status db)))
 
 (rf/reg-sub :navigation (fn [db _] (:navigation db)))
