@@ -79,7 +79,6 @@
 
 (rf/reg-event-db ::goto-date
   (fn [db [_ date]]
-    (print date)
     (update db :navigation
             #(assoc % :session date
                       :page :session))))

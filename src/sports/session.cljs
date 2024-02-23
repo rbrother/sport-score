@@ -21,15 +21,19 @@
 
 (defn new-game-widget []
   (let [all-players @(rf/subscribe [:players])
-        local-state (reagent/atom [{:name (first all-players) :score ""}
-                                   {:name (second all-players) :score ""}])]
+        local-state (reagent/atom [{:name (first all-players) :score nil}
+                                   {:name (second all-players) :score nil}])]
     (fn []
       [:div
-       [player-score 0 local-state] " vs "
-       [player-score 1 local-state]
-       [:button.navigation
-        {:on-click #(rf/dispatch [::add-game @local-state])}
-        "Add Game"]])))
+       [:div.grid {:style {:width "500px"
+                           :grid-template-columns "auto auto 1fr"
+                           :align-items "center"}}
+        [:div.winner "WINNER"] [:div [player-score 0 local-state]]
+        [:div {:style {:grid-column "3" :grid-row "1/span 2"}}
+         [:button.navigation
+          {:on-click #(rf/dispatch [::add-game @local-state])}
+          "Add Game"]]
+        [:div.loser "LOSER"] [:div [player-score 1 local-state]]]])))
 
 (defn sets-table [sets]
   (into
