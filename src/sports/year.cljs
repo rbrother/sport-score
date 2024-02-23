@@ -22,15 +22,27 @@
         {:on-click #(rf/dispatch [::new-session (:date @local-state)])}
         "Add Session"]])))
 
+(defn player-points-cells [players-data]
+  (into [:<>]
+        (for [name calc/players]
+          (let [max-points (->> players-data (map :points) (apply max))
+                min-points (->> players-data (map :points) (apply min))
+                {:keys [points]} (->> players-data (find-first (attr= :name name)))
+                style (cond
+                        (= points max-points) "winner"
+                        (= points min-points) "loser"
+                        :else "")]
+            [:div {:class style} (.toFixed points 1)]))))
+
 (defn session-rows [year-data]
   (into [:<>]
         (for [[date {:keys [players sets]}] (sort-by first year-data)]
           [:<>
            [:div.link {:on-click #(rf/dispatch [::goto-date date])} date]
            [:div (count sets)]
-           (into [:<>] (for [name calc/players]
-                         (let [player (->> players (find-first (attr= :name name)))]
-                           [:div (:points player)])))])))
+           [player-points-cells players]
+           [:div]   ;; 1fr padding
+           ])))
 
 (defn raw-data-editor []
   (let [year-data @(rf/subscribe [:current-year-data])
@@ -49,18 +61,15 @@
 (defn points-table []
   (let [year @(rf/subscribe [:selected-year])
         year-data @(rf/subscribe [:year-summary year])
-        player-cols (s/join " " (repeat (count calc/players) "100px"))]
-    [:div.grid {:style {:grid-template-columns (str "100px 100px " player-cols)}}
+        player-cols (s/join " " (repeat (count calc/players) "80px"))]
+    [:div.grid {:style {:grid-template-columns (str "auto auto " player-cols " 1fr")}}
      [:div.bold "Date"] [:div.bold "Sets"]
-     (into [:<>] (for [p calc/players] [:div.bold p]))
+     (into [:<>] (for [p calc/players] [:div.bold p])) [:div]
      [:div.row-line]
      [session-rows (:sessions year-data)]
      [:div.row-line]
-     (into [:<> [:div "TOTAL"] [:div]]
-           (for [p calc/players]
-             [:div.bold (->> (:players year-data)
-                             (find-first (attr= :name p))
-                             :points)]))]))
+     [:div "TOTAL"] [:div]
+     [player-points-cells (:players year-data)]]))
 
 (defn view []
   [:div
