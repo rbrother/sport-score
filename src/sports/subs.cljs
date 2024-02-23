@@ -19,6 +19,9 @@
 (rf/reg-sub :year-data :<- [:years]
   (fn [years [_ year]] (get years year)))
 
+(rf/reg-sub :current-year-data :<- [:years] :<- [:selected-year]
+  (fn [[years current] _] (get years current)))
+
 (rf/reg-sub :year-summary
   (fn [[_ year]]
     (rf/subscribe [:year-data year]))
