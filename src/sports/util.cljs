@@ -33,4 +33,7 @@
 
 (defn try-parse-int [s]
   (let [parsed (js/parseInt s)]
-    (if (js/isNaN parsed) s parsed)))
+    (cond
+      (= s "") nil
+      (js/isNaN parsed) s
+      :else parsed)))

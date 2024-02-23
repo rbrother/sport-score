@@ -2,7 +2,10 @@
   (:require [medley.core :refer [map-vals]]))
 
 (defn amend-set [[a b]]
-  (let [a-winner? (> (:score a) (:score b))]
+  (let [a-winner? (cond
+                    (not (:score a)) false
+                    (not (:score b)) true
+                    :else (> (:score a) (:score b)))]
     [(assoc a :winner? a-winner?)
      (assoc b :winner? (not a-winner?))]))
 
@@ -52,7 +55,7 @@
      :sets amended-sets}))
 
 (defn year-summary [year-data]
-  (let [amended-sessions  (->> year-data (map-vals analyze-session))]
+  (let [amended-sessions (->> year-data (map-vals analyze-session))]
     {:sessions amended-sessions
      ;; summary data
      }))
