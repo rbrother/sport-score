@@ -1,4 +1,5 @@
-(ns sports.calculations)
+(ns sports.calculations
+  (:require [medley.core :refer [map-vals]]))
 
 (defn amend-set [[a b]]
   (let [a-winner? (> (:score a) (:score b))]
@@ -49,3 +50,9 @@
                               :losses (sum-of matches :losses)
                               :points (sum-of matches :points)}))))
      :sets amended-sets}))
+
+(defn year-summary [year-data]
+  (let [amended-sessions  (->> year-data (map-vals analyze-session))]
+    {:sessions amended-sessions
+     ;; summary data
+     }))

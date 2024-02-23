@@ -1,6 +1,8 @@
 (ns sports.util
   (:require [cljs.pprint :refer [pprint]]))
 
+(defn attr= [attr value] (fn [x] (= (get x attr) value)))
+
 (defn index-by-id [list]
   (into {} (map (fn [{:keys [id] :as item}] [id item]) list)))
 

@@ -1,9 +1,10 @@
 (ns sports.year
   (:require [clojure.string :as s]
             [re-frame.core :as rf]
+            [medley.core :refer [find-first]]
             [reagent.core :as reagent]
             [sports.config :refer [debug?]]
-            [sports.util :as util]))
+            [sports.util :as util :refer [attr=]]))
 
 (defn new-session-widget []
   (let [local-state (reagent/atom {})]
@@ -19,26 +20,31 @@
         "Add Session"]])))
 
 (defn session-rows [year-data]
-  (let [players @(rf/subscribe [:players])]
+  (let [players-all @(rf/subscribe [:players])]
     (into [:<>]
-          (for [[date session] year-data]
+          (for [[date {:keys [players sets]}] (sort-by first year-data)]
             [:<>
              [:div.link {:on-click #(rf/dispatch [::goto-date date])} date]
-             [:div (count session)]
-             (into [:<>] (for [p players] [:div "..."]))]))))
+             [:div (count sets)]
+             (into [:<>] (for [name players-all]
+                           (let [player (->> players (find-first (attr= :name name)))]
+                             [:div (:points player)])))]))))
 
 (defn view []
   (let [year @(rf/subscribe [:selected-year])
-        year-data @(rf/subscribe [:year-data year])
+        year-data @(rf/subscribe [:year-summary year])
         players @(rf/subscribe [:players])
         player-cols (s/join " " (repeat (count players) "100px"))]
     [:div
      [:div [:span.large.bold "Year " year]
       [:button.navigation {:on-click #(rf/dispatch [::all-years])} "← Years list"]]
+     [:div "Points"]
      [:div.grid {:style {:grid-template-columns (str "100px 100px " player-cols)}}
       [:div.bold "Date"] [:div.bold "Sets"]
       (into [:<>] (for [p players] [:div.bold p]))
-      [session-rows year-data]]
+      [session-rows (:sessions year-data)]
+      (into [:<> [:div "TOTAL"] [:div "..."]] (for [p players] [:div.bold "..."]))
+      ]
      [new-session-widget]
      (when debug?
        [:<>

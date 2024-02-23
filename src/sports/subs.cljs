@@ -19,6 +19,12 @@
 (rf/reg-sub :year-data :<- [:years]
   (fn [years [_ year]] (get years year)))
 
+(rf/reg-sub :year-summary
+  (fn [[_ year]]
+    (rf/subscribe [:year-data year]))
+  (fn [year-data _]
+    (calc/year-summary year-data)))
+
 ;; See https://day8.github.io/re-frame/subscriptions/ for more complex subscription syntax like below
 (rf/reg-sub :session-data
   (fn [[_ year _date]]
