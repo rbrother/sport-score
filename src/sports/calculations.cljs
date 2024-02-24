@@ -26,6 +26,7 @@
                     :points (cond
                               (>= net-victories 3) 1.5
                               (>= net-victories 1) 1
+                              (= net-victories 0) 0.5 ;; draw
                               :else 0)}))))))
 
 (defn sum-of [seq selector-fn]
