@@ -32,7 +32,7 @@
                         (= points max-points) "winner"
                         (= points min-points) "loser"
                         :else "")]
-            [:div {:class style} (.toFixed points 1)]))))
+            [:div {:class style} (when points (.toFixed points 1))]))))
 
 (defn session-rows [year-data]
   (into [:<>]
