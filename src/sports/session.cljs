@@ -5,12 +5,23 @@
             [sports.log :as log]
             [sports.util :as util]))
 
+(defn update-names [state index value]
+  (let [other-index (if (= index 0) 1 0)
+        other-player (get state other-index)
+        change-other? (= (:name other-player) value)
+        new-other (-> calc/players set (disj value) sort first)]
+    (cond-> state
+            true (assoc-in [index :name] value)
+            change-other? (assoc-in [other-index :name] new-other))))
+
 (defn player-score [index state]
   (let [player-data (get @state index)]
     [:<>
      [:select
       {:value (:name player-data)
-       :on-change (util/set-local-state state [index :name])}
+       :on-change (fn [event]
+                    (let [value (-> event .-target .-value)]
+                      (swap! state update-names index value)))}
       (for [p calc/players]
         ^{:key p} [:option {:value p} p])]
      "Score"
