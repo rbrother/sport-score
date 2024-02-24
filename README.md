@@ -7,7 +7,6 @@ A [re-frame](https://github.com/day8/re-frame) application for tracking of score
 * Fill points from 2023 and compare calculations to excel
 * Pre-sets (without loser points): ignore when determining set-difference for 1.5 point score
 * Show when modified / need to save
-* Showing of total points of each year in the year listing
 * Entering data from previous years (automatically...?)
 
 ### Project Overview

@@ -52,6 +52,8 @@
                    (mapv (fn [name]
                            {:name name
                             :points (->> amended-sessions, vals
+                                         ;; Skip sessions which don't have all players
+                                         (filter (fn [session] (= 3 (count (:players session)))))
                                          (mapcat :players)
                                          (filter (attr= :name name))
                                          (map :points)

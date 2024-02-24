@@ -23,16 +23,21 @@
         "Add Session"]])))
 
 (defn player-points-cells [players-data]
-  (into [:<>]
-        (for [name calc/players]
-          (let [max-points (->> players-data (map :points) (apply max))
-                min-points (->> players-data (map :points) (apply min))
-                {:keys [points]} (->> players-data (find-first (attr= :name name)))
-                style (cond
-                        (= points max-points) "winner"
-                        (= points min-points) "loser"
-                        :else "")]
-            [:div {:class style} (when points (.toFixed points 1))]))))
+  (let [ignore? (< (count players-data) 3)]
+    (into [:<>]
+          (for [name calc/players]
+            (let [max-points (->> players-data (map :points) (apply max))
+                  min-points (->> players-data (map :points) (apply min))
+                  {:keys [points]} (->> players-data (find-first (attr= :name name)))
+                  style (cond
+                          (= points max-points) "winner"
+                          (= points min-points) "loser"
+                          :else "")]
+              [:div {:class style} (when points
+                                     (str
+                                       (when ignore? "(")
+                                       (.toFixed points 1)
+                                       (when ignore? ")")))])))))
 
 (defn session-rows [year-data]
   (into [:<>]
