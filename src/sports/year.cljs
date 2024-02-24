@@ -1,9 +1,8 @@
 (ns sports.year
-  (:require [clojure.string :as s]
-            [clojure.pprint :refer [pprint]]
-            [clojure.edn :as edn]
-            [re-frame.core :as rf]
+  (:require [clojure.edn :as edn]
+            [clojure.string :as s]
             [medley.core :refer [find-first]]
+            [re-frame.core :as rf]
             [reagent.core :as reagent]
             [sports.calculations :as calc]
             [sports.config :refer [debug?]]
@@ -22,31 +21,32 @@
         {:on-click #(rf/dispatch [::new-session (:date @local-state)])}
         "Add Session"]])))
 
-(defn player-points-cells [players-data]
-  (let [ignore? (< (count players-data) 3)]
-    (into [:<>]
-          (for [name calc/players]
-            (let [max-points (->> players-data (map :points) (apply max))
-                  min-points (->> players-data (map :points) (apply min))
-                  {:keys [points]} (->> players-data (find-first (attr= :name name)))
-                  style (cond
-                          (= points max-points) "winner"
-                          (= points min-points) "loser"
-                          :else "")]
-              [:div {:class style} (when points
-                                     (str
-                                       (when ignore? "(")
-                                       (.toFixed points 1)
-                                       (when ignore? ")")))])))))
+(defn mark-ignored [s ignore?]
+  (if ignore? (str "(" s ")") s))
+
+(defn player-points-cells [players-data include?]
+  (into [:<>]
+        (for [name calc/players]
+          (let [max-points (->> players-data (map :points) (apply max))
+                min-points (->> players-data (map :points) (apply min))
+                {:keys [points]} (->> players-data (find-first (attr= :name name)))
+                style (cond
+                        (= points max-points) "winner"
+                        (= points min-points) "loser"
+                        :else "")]
+            [:div {:class style}
+              (some-> points (.toFixed 1)
+                     (mark-ignored (not include?)))]))))
 
 (defn session-rows [year-data]
   (into [:<>]
-        (for [[date {:keys [players sets]}] (sort-by first year-data)]
+        (for [[date {:keys [players sets include-in-year-points?] :as _session}]
+              (sort-by first year-data)]
           [:<>
            [:div.link {:on-click #(rf/dispatch [::goto-date date])} date]
            [:div (count sets)]
-           [player-points-cells players]
-           [:div]   ;; 1fr padding
+           [player-points-cells players include-in-year-points?]
+           [:div] ;; 1fr padding
            ])))
 
 (defn raw-data-editor []
@@ -74,7 +74,7 @@
      [session-rows (:sessions year-data)]
      [:div.row-line]
      [:div "TOTAL"] [:div]
-     [player-points-cells (:players year-data)]]))
+     [player-points-cells (:players year-data) true]]))
 
 (defn view []
   [:div

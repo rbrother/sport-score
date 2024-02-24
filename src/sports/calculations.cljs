@@ -43,7 +43,9 @@
                               :matches matches
                               :victories (sum-of matches :victories)
                               :losses (sum-of matches :losses)
-                              :points (sum-of matches :points)}))))
+                              :points (sum-of matches :points)
+                              }))))
+     :include-in-year-points? (= (set players) (set session-players)) ;; all-players-present?
      :sets session-sets}))
 
 (defn year-summary [year-data]
@@ -54,7 +56,7 @@
                            {:name name
                             :points (->> amended-sessions, vals
                                          ;; Skip sessions which don't have all players
-                                         (filter (fn [session] (= 3 (count (:players session)))))
+                                         (filter :include-in-year-points?)
                                          (mapcat :players)
                                          (filter (attr= :name name))
                                          (map :points)
