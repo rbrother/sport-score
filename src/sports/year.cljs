@@ -1,10 +1,12 @@
 (ns sports.year
   (:require [clojure.edn :as edn]
             [clojure.string :as s]
+            [clojure.pprint :refer [pprint]]
             [medley.core :refer [find-first]]
             [re-frame.core :as rf]
             [reagent.core :as reagent]
             [sports.calculations :as calc]
+            [sports.import :as import]
             [sports.config :refer [debug?]]
             [sports.util :as util :refer [attr=]]))
 
@@ -58,7 +60,10 @@
        [:div "Raw data editor"]
        [:div [:button.navigation
               {:on-click #(rf/dispatch [::raw-data-edited (:text @state)])}
-              "Apply Raw Data Edits"]]
+              "Apply Raw Data Edits"]
+        [:button.navigation
+         {:on-click #(rf/dispatch [::import-csv (:text @state)])}
+         "Import CSV"]]
        [:div
         [:textarea {:rows 30, :cols 80, :value (:text @state)
                     :on-change (util/set-local-state state [:text])}]]])))
@@ -97,6 +102,11 @@
 (rf/reg-event-db ::raw-data-edited
   (fn [{{year :year} :navigation :as db} [_ s]]
     (let [data (edn/read-string s)]
+      (assoc-in db [:years year] data))))
+
+(rf/reg-event-db ::import-csv
+  (fn [{{year :year} :navigation :as db} [_ s]]
+    (let [data (import/year-data-from-csv s)]
       (assoc-in db [:years year] data))))
 
 (rf/reg-event-db ::goto-date
