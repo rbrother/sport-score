@@ -1,6 +1,7 @@
 (ns sports.session
   (:require [re-frame.core :as rf]
             [reagent.core :as reagent]
+            [cljs.pprint :refer [pprint]]
             [sports.calculations :as calc]
             [sports.log :as log]
             [sports.util :as util]))
@@ -35,8 +36,7 @@
                                    {:name (second calc/players) :score nil}])]
     (fn []
       [:div
-       [:div.grid {:style {:width "500px"
-                           :grid-template-columns "auto auto 1fr"
+       [:div.grid {:style {:grid-template-columns "auto auto 1fr"
                            :align-items "center"}}
         [:div.winner "WINNER"] [:div [player-score 0 local-state]]
         [:div {:style {:grid-column "3" :grid-row "1/span 2"}}
@@ -47,7 +47,7 @@
 
 (defn sets-table [sets]
   (into
-    [:div.grid {:style {:width "500px" :grid-template-columns "auto auto auto auto 1fr"}}
+    [:div.grid {:style {:grid-template-columns "auto auto auto auto 1fr"}}
      [:div.bold "#"] [:div.bold "Player 1"] [:div.bold "Score"] [:div.bold "Player 2"] [:div]]
     (->> sets
          (map-indexed
@@ -61,17 +61,24 @@
               [:div.loser loser-name]
               [:div]])))))
 
-(defn match-line [name {:keys [opponent victories losses net-victories points]}]
-  [[:div name] [:div opponent] [:div.winner victories]
-   [:div.loser losses]
+(defn match-line [name {:keys [opponent victories losses victories-main losses-main
+                               net-victories net-victories-main points]}]
+  [[:div name]
+   [:div opponent]
+   [:div.winner victories (when (not= victories-main victories)
+                            (str " (" victories-main ")"))]
+   [:div.loser losses (when (not= losses-main losses)
+                        (str " (" losses-main ")"))]
    [:div {:class (if (> net-victories 0) "winner" "loser")} net-victories]
+   [:div {:class (if (> net-victories-main 0) "winner" "loser")} net-victories-main]
    [:div.gray points] [:div]])
 
 (defn scoring-table [players]
+  (pprint players)
   (into
-    [:div.grid {:style {:width "500px" :grid-template-columns "auto auto auto auto auto auto 1fr"}}
+    [:div.grid {:style {:grid-template-columns "auto auto auto auto auto auto auto 1fr"}}
      [:div.bold "Player"] [:div.bold "Opponent"] [:div.bold "Wins"]
-     [:div.bold "Losses"] [:div.bold "Net-Win"] [:div.bold "Points"] [:div]]
+     [:div.bold "Losses"] [:div.bold "Net-Win"] [:div.bold "Net-Win-Main"] [:div.bold "Points"] [:div]]
     (->> players
          (mapcat (fn [{:keys [name matches victories losses points]}]
                    (concat
@@ -80,6 +87,7 @@
                      [[:div name] [:div "TOTAL"] [:div.winner victories]
                       [:div.loser losses]
                       [:div {:class (if (> victories losses) "winner" "loser")} (- victories losses)]
+                      [:div]
                       [:div.bold points] [:div]]))))))
 
 (defn view []

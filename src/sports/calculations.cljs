@@ -5,26 +5,33 @@
 
 (def players ["Roope", "Kari", "Niklas"])
 
-(defn count-victories [sets player opponent]
-  (->> sets
-       (filter (fn [[{winner-name :name} {loser-name :name}]]
-                 (and (= winner-name player)
-                      (= loser-name opponent))))
-       count))
+(defn count-victories [sets player opponent include-pre?]
+  (cond->> sets
+           (not include-pre?) (filter (fn [[_ loser]] (:score loser)))
+           true (filter (fn [[{winner-name :name} {loser-name :name}]]
+                          (and (= winner-name player)
+                               (= loser-name opponent))))
+           true count))
 
 (defn collect-player-victories [sets player session-payers]
   (let [opponents (disj (set session-payers) player)]
     (->> opponents, sort
          (mapv (fn [opp]
-                 (let [player-victories (count-victories sets player opp)
-                       player-losses (count-victories sets opp player)
-                       net-victories (- player-victories player-losses)]
+                 (let [player-victories (count-victories sets player opp true)
+                       player-losses (count-victories sets opp player true)
+                       player-victories-main (count-victories sets player opp false)
+                       player-losses-main (count-victories sets opp player false)
+                       net-victories (- player-victories player-losses)
+                       net-victories-main (- player-victories-main player-losses-main)]
                    {:opponent opp
                     :victories player-victories
+                    :victories-main player-victories-main
                     :losses player-losses
+                    :losses-main player-losses-main
                     :net-victories net-victories
+                    :net-victories-main net-victories-main
                     :points (cond
-                              (>= net-victories 3) 1.5
+                              (and (>= net-victories-main 3) (>= net-victories 3)) 1.5
                               (>= net-victories 1) 1
                               (= net-victories 0) 0.5 ;; draw
                               :else 0)}))))))
@@ -34,8 +41,8 @@
 
 (defn analyze-session [session-sets]
   (let [session-players (->> session-sets
-                     (mapcat (fn [[a b]] [(:name a) (:name b)]))
-                     set, sort)]
+                             (mapcat (fn [[a b]] [(:name a) (:name b)]))
+                             set, sort)]
     {:players (->> session-players
                    (mapv (fn [player]
                            (let [matches (collect-player-victories session-sets player session-players)]
