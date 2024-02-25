@@ -47,7 +47,7 @@
 
 (defn sets-table [sets]
   (into
-    [:div.grid {:style {:grid-template-columns "auto auto auto auto 1fr"}}
+    [:div.grid {:style {:grid-template-columns "auto 80px 80px 80px 1fr"}}
      [:div.bold "#"] [:div.bold "Player 1"] [:div.bold "Score"] [:div.bold "Player 2"] [:div]]
     (->> sets
          (map-indexed
@@ -76,9 +76,9 @@
 (defn scoring-table [players]
   (pprint players)
   (into
-    [:div.grid {:style {:grid-template-columns "auto auto auto auto auto auto auto 1fr"}}
+    [:div.grid {:style {:grid-template-columns "80px 80px 60px 60px 60px 60px 60px 1fr"}}
      [:div.bold "Player"] [:div.bold "Opponent"] [:div.bold "Wins"]
-     [:div.bold "Losses"] [:div.bold "Net-Win"] [:div.bold "Net-Win-Main"] [:div.bold "Points"] [:div]]
+     [:div.bold "Losses"] [:div.bold "Net-Win"] [:div.bold "Win-Main"] [:div.bold "Points"] [:div]]
     (->> players
          (mapcat (fn [{:keys [name matches victories losses points]}]
                    (concat

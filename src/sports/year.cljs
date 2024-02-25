@@ -67,7 +67,7 @@
   (let [year @(rf/subscribe [:selected-year])
         year-data @(rf/subscribe [:year-summary year])
         player-cols (s/join " " (repeat (count calc/players) "80px"))]
-    [:div.grid {:style {:grid-template-columns (str "auto auto " player-cols " 1fr")}}
+    [:div.grid {:style {:grid-template-columns (str "100px auto " player-cols " 1fr")}}
      [:div.bold "Date"] [:div.bold "Sets"]
      (into [:<>] (for [p calc/players] [:div.bold p])) [:div]
      [:div.row-line]
