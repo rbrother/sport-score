@@ -13,7 +13,7 @@
      (into [:<>] (for [p calc/players] [:div.bold p])) [:div]
      [:div.row-line]
      (into [:<>]
-           (for [year (sort (keys years))]
+           (for [year (reverse (sort (keys years)))]
              (let [on-click #(rf/dispatch [:show-year year])
                    {:keys [sessions players]} @(rf/subscribe [:year-summary year])]
                [:<>
