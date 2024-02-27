@@ -35,11 +35,23 @@
                 {:file filename}
                 [::items-downloaded]]}))
 
-(defn current-year [] (keyword (str (.getFullYear (js/Date.)))))
+(def base-years [:2012S
+                 :2013K, :2013S
+                 :2014K, :2014S
+                 :2015K, :2015S
+                 :2016K, :2016S
+                 :2017K, :2017S
+                 :2018K, :2018S
+                 :2019K, :2019S
+                 :2020K, :2020S
+                 :2021K, :2021S
+                 :2022K, :2022S])
 
 (rf/reg-event-db ::items-downloaded [log/intercept]
   (fn [db [_ {items :body}]]
-    (assoc db :years (update items (current-year) #(or % {}))
+    (assoc db :years (merge
+                       (->> base-years (map (fn [y] [y {}])) (into {}))
+                       items)
               :status nil)))
 
 (rf/reg-event-fx ::save [log/intercept]
