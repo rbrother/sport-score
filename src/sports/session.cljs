@@ -74,7 +74,6 @@
    [:div.gray points] [:div]])
 
 (defn scoring-table [players]
-  (pprint players)
   (into
     [:div.grid {:style {:grid-template-columns "80px 80px 60px 60px 60px 60px 60px 1fr"}}
      [:div.bold "Player"] [:div.bold "Opponent"] [:div.bold "Wins"]
@@ -102,7 +101,8 @@
      [:div "Scoring"]
      [scoring-table players]]))
 
-(rf/reg-event-db ::add-game [log/intercept]
-  (fn [{{:keys [year session]} :navigation :as db} [_ values]]
-    (update-in db [:years year session] #(conj % values))))
+(rf/reg-event-fx ::add-game [log/intercept]
+  (fn [{{{:keys [year session]} :navigation :as db} :db} [_ values]]
+    {:db (update-in db [:years year session] #(conj % values))
+     :dispatch [:sports.aws/save]}))
 
