@@ -4,10 +4,8 @@ A [re-frame](https://github.com/day8/re-frame) application for tracking of score
 
 # TODO
 
-* Fill points from 2023 and compare calculations to excel
-* Pre-sets (without loser points): ignore when determining set-difference for 1.5 point score
-* Show when modified / need to save
-* Entering data from previous years (automatically...?)
+* Ja koosteisiin pallojen ja erien voittoprosentit
+* Ja maksujen tracking
 
 ### Project Overview
 
