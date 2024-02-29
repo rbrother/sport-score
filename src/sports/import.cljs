@@ -20,7 +20,7 @@
   (let [vals (str/split s #",")
         date (keyword (get vals 2))
         pre-nk (take 2 (drop 16 vals))
-        sets-data (partition 4 (drop 20 vals))]
+        sets-data (partition 4 (drop 19 vals))]
     [date (vec (concat (pre-sets pre-nk)
                        (map import-set sets-data)))]))
 
