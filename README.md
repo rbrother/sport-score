@@ -2,6 +2,9 @@
 
 A [re-frame](https://github.com/day8/re-frame) application for tracking of scores in 1-to-1 sports.
 
+Note that the static website hosting works on HTTP, not HTTPS
+Problem opening on mobile broswers is that they switch to HTTPS automatically.
+
 # TODO
 
 * Ja koosteisiin pallojen ja erien voittoprosentit
