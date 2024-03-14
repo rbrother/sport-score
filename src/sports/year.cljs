@@ -68,6 +68,11 @@
         [:textarea {:rows 30, :cols 80, :value (:text @state)
                     :on-change (util/set-local-state state [:text])}]]])))
 
+(defn totals-line [year-data]
+  [:<>
+   [:div "TOTAL"] [:div]
+   [player-points-cells (:players year-data) true]])
+
 (defn points-table []
   (let [year @(rf/subscribe [:selected-year])
         year-data @(rf/subscribe [:year-summary year])
@@ -76,18 +81,18 @@
      [:div.bold "Date"] [:div.bold "Sets"]
      (into [:<>] (for [p calc/players] [:div.bold p])) [:div]
      [:div.row-line]
+     [totals-line year-data]
+     [:div.row-line]
      [session-rows (:sessions year-data)]
      [:div.row-line]
-     [:div "TOTAL"] [:div]
-     [player-points-cells (:players year-data) true]]))
+     [totals-line year-data]]))
 
 (defn view []
   [:div
    [:div [:span.large.bold "Year " @(rf/subscribe [:selected-year])]
     [:button.navigation {:on-click #(rf/dispatch [::all-years])} "← Years list"]]
-   [:div "Points"]
-   [points-table]
    [new-session-widget]
+   [points-table]
    (when debug? [raw-data-editor])])
 
 ;; EVENTS
