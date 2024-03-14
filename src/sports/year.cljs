@@ -43,7 +43,7 @@
 (defn session-rows [year-data]
   (into [:<>]
         (for [[date {:keys [players sets include-in-year-points?] :as _session}]
-              (sort-by first year-data)]
+              (reverse (sort-by first year-data))]
           [:<>
            [:div.link {:on-click #(rf/dispatch [::goto-date date])} date]
            [:div (count sets)]

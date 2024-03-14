@@ -59,7 +59,8 @@
                [:span.winner winner-score] " - "
                [:span.loser loser-score]]
               [:div.loser loser-name]
-              [:div]])))))
+              [:div]]))
+         reverse)))
 
 (defn match-line [name {:keys [opponent victories losses victories-main losses-main
                                net-victories net-victories-main points]}]
@@ -76,8 +77,8 @@
 (defn scoring-table [players]
   (into
     [:div.grid {:style {:grid-template-columns "80px 80px 60px 60px 60px 60px 60px 1fr"}}
-     [:div.bold "Player"] [:div.bold "Opponent"] [:div.bold "Wins"]
-     [:div.bold "Losses"] [:div.bold "Net-Win"] [:div.bold "Win-Main"] [:div.bold "Points"] [:div]]
+     [:div.bold "Player"] [:div.bold "Opponent"] [:div.bold "Set Wins"]
+     [:div.bold "Set Losses"] [:div.bold "Net-Win"] [:div.bold "Win-Main"] [:div.bold "Points"] [:div]]
     (->> players
          (mapcat (fn [{:keys [name matches victories losses points]}]
                    (concat
