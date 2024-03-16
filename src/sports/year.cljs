@@ -56,7 +56,6 @@
         state (reagent/atom {:text (util/pprint-str year-data)})]
     (fn []
       [:<>
-       [:hr]
        [:div "Raw data editor"]
        [:div [:button.navigation
               {:on-click #(rf/dispatch [::raw-data-edited (:text @state)])}

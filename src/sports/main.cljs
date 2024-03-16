@@ -3,7 +3,8 @@
             [sports.aws :as aws]
             [sports.session :as session]
             [sports.year :as year]
-            [sports.years :as years]))
+            [sports.years :as years]
+            [sports.add-set :as add-set]))
 
 ;; VIEWS
 
@@ -18,7 +19,8 @@
      (case page
        :years [years/view]
        :year [year/view]
-       :session [session/view])]))
+       :session [session/view]
+       :add-set [add-set/view])]))
 
 ;; EVENTS
 
