@@ -1,13 +1,12 @@
 (ns sports.year
   (:require [clojure.edn :as edn]
             [clojure.string :as s]
-            [clojure.pprint :refer [pprint]]
             [medley.core :refer [find-first]]
             [re-frame.core :as rf]
             [reagent.core :as reagent]
             [sports.calculations :as calc]
-            [sports.import :as import]
             [sports.config :refer [debug?]]
+            [sports.import :as import]
             [sports.util :as util :refer [attr=]]))
 
 (defn new-session-widget []
@@ -37,19 +36,23 @@
                         (= points min-points) "loser"
                         :else "")]
             [:div {:class style}
-              (some-> points (.toFixed 1)
+             (some-> points (.toFixed 1)
                      (mark-ignored (not include?)))]))))
 
 (defn session-rows [year-data]
   (into [:<>]
-        (for [[date {:keys [players sets include-in-year-points?] :as _session}]
-              (reverse (sort-by first year-data))]
-          [:<>
-           [:div.link {:on-click #(rf/dispatch [::goto-date date])} date]
-           [:div (count sets)]
-           [player-points-cells players include-in-year-points?]
-           [:div] ;; 1fr padding
-           ])))
+        (->> year-data
+             (sort-by first)
+             (map-indexed
+               (fn [index [date {:keys [players sets include-in-year-points?] :as _session}]]
+                 [:<>
+                  [:div (inc index)]
+                  [:div.link {:on-click #(rf/dispatch [::goto-date date])} date]
+                  [:div (count sets)]
+                  [player-points-cells players include-in-year-points?]
+                  [:div] ;; 1fr padding
+                  ]))
+             reverse)))
 
 (defn raw-data-editor []
   (let [year-data @(rf/subscribe [:current-year-data])
@@ -69,15 +72,15 @@
 
 (defn totals-line [year-data]
   [:<>
-   [:div "TOTAL"] [:div]
+   [:div] [:div "TOTAL"] [:div]
    [player-points-cells (:players year-data) true]])
 
 (defn points-table []
   (let [year @(rf/subscribe [:selected-year])
         year-data @(rf/subscribe [:year-summary year])
         player-cols (s/join " " (repeat (count calc/players) "80px"))]
-    [:div.grid {:style {:grid-template-columns (str "100px auto " player-cols " 1fr")}}
-     [:div.bold "Date"] [:div.bold "Sets"]
+    [:div.grid {:style {:grid-template-columns (str "50px 100px auto " player-cols " 1fr")}}
+     [:div.bold "#"] [:div.bold "Date"] [:div.bold "Sets"]
      (into [:<>] (for [p calc/players] [:div.bold p])) [:div]
      [:div.row-line]
      [totals-line year-data]
