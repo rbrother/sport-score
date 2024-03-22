@@ -5,6 +5,12 @@
 
 (def players ["Roope", "Kari", "Niklas"])
 
+(def player-pairs
+  (->> (for [p1 players, p2 players, :when (not= p1 p2)] #{p1 p2})
+       distinct
+       (map vec)
+       vec))
+
 (defn count-victories [sets player opponent include-pre?]
   (cond->> sets
            (not include-pre?) (filter (fn [[_ loser]] (:score loser)))

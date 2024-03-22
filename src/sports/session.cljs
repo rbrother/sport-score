@@ -1,8 +1,8 @@
 (ns sports.session
-  (:require [re-frame.core :as rf]
-            [cljs.pprint :refer [pprint]]
-            [sports.log :as log]
-            [sports.util :as util]))
+  (:require [medley.core :refer [find-first]]
+            [re-frame.core :as rf]
+            [sports.calculations :as calc]
+            [sports.util :refer [attr=]]))
 
 (defn sets-table [sets]
   (into
@@ -33,21 +33,47 @@
    [:div {:class (if (> net-victories-main 0) "winner" "loser")} net-victories-main]
    [:div.gray points] [:div]])
 
-(defn scoring-table [players]
-  (into
-    [:div.grid {:style {:grid-template-columns "80px 80px 60px 60px 60px 60px 60px 1fr"}}
-     [:div.bold "Player"] [:div.bold "Opponent"] [:div.bold "Set Wins"]
-     [:div.bold "Set Losses"] [:div.bold "Net-Win"] [:div.bold "Win-Main"] [:div.bold "Points"] [:div]]
-    (->> players
-         (mapcat (fn [{:keys [name matches victories losses points]}]
-                   (concat
-                     [[:div.row-line]]
-                     (->> matches (mapcat #(match-line name %)))
-                     [[:div name] [:div "TOTAL"] [:div.winner victories]
-                      [:div.loser losses]
-                      [:div {:class (if (> victories losses) "winner" "loser")} (- victories losses)]
-                      [:div]
-                      [:div.bold points] [:div]]))))))
+(defn scores-a-b [players-data p1 p2]
+  (->> players-data
+       (find-first (attr= :name p1)) :matches
+       (find-first (attr= :opponent p2))))
+
+(defn hide-zero [val] (when (> val 0) val))
+
+(defn scoring-row [players-data p1 p2]
+  (let [scores1 (scores-a-b players-data p1 p2)
+        scores2 (scores-a-b players-data p2 p1)
+        {points1 :points, victories1 :victories, vic-main1 :victories-main} scores1
+        {points2 :points, victories2 :victories, vic-main2 :victories-main} scores2
+        [class1 class2] (case (compare points1 points2)
+                          1 ["winner" "loser"]
+                          0 [nil nil]
+                          -1 ["loser" "winner"])]
+    [[:div [:span {:class class1} p1] " - " [:span {:class class2} p2]]
+     [:div
+      [:span {:class class1}
+       victories1 (when (not= victories1 vic-main1) [:span "(" vic-main1 ")"])] " - "
+      [:span {:class class2}
+       victories2 (when (not= victories2 vic-main2) [:span "(" vic-main2 ")"])]]
+     (for [p calc/players]
+       ^{:key p} [:div (hide-zero (cond (= p p1) points1
+                                        (= p p2) points2
+                                        :else 0))])
+     [:div]]))
+
+(defn scoring-table [players-data]
+  [:div.grid {:style {:grid-template-columns "120px 80px 60px 60px 60px 1fr"}}
+   [:div.bold "Pair"] [:div.bold "Sets"]
+   (for [p calc/players] ^{:key p} [:div.bold p])
+   [:div]
+   (->> calc/player-pairs
+        (mapcat (fn [[p1 p2]] (scoring-row players-data p1 p2))))
+   [:div.row-line]
+   [:div.bold "TOTAL"] [:div]
+   (for [p calc/players]
+     ^{:key (str "total-" p)}
+     [:div.bold (->> players-data (find-first (attr= :name p)) :points)])
+   [:div]])
 
 (defn view []
   (let [year @(rf/subscribe [:selected-year])
@@ -57,9 +83,8 @@
      [:div [:span.large.bold "Session " date]
       [:button.navigation {:on-click #(rf/dispatch [:show-year year])} "← " year]
       [:button.navigation {:on-click #(rf/dispatch [::set-addition])} "Add set..."]]
-     [sets-table sets]
-     [:div "Scoring"]
-     [scoring-table players]]))
+     [scoring-table players]
+     [sets-table sets]]))
 
 ;; events
 
