@@ -7,10 +7,7 @@ Problem opening on mobile broswers is that they switch to HTTPS automatically.
 
 # TODO
 
-* Scoring table: käännä siten että pelaajat sarakkeilla, riveillä parit A<->B
-* Uuden pelin lisäys modal ruudussa, jossa valitaan voittaja, häviäjä 
-* voittajan pisteet <options>, jossa 11, 12, 13, ...
-* Häviäjän pisteet <options>, jossa 9, 8, 7... (jos voittaja 11) muuten voittaja - 2.
+* Scoring table: laske calculations jo tulokset paremmin uutta taulukkoa vastaavaan muotoon
 * Ja koosteisiin pallojen ja erien voittoprosentit
 * Ja maksujen tracking
 

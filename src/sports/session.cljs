@@ -1,5 +1,6 @@
 (ns sports.session
-  (:require [medley.core :refer [find-first]]
+  (:require [cljs.pprint :refer [pprint]]
+            [medley.core :refer [find-first]]
             [re-frame.core :as rf]
             [sports.calculations :as calc]
             [sports.util :refer [attr=]]))
@@ -20,18 +21,6 @@
               [:div.loser loser-name]
               [:div]]))
          reverse)))
-
-(defn match-line [name {:keys [opponent victories losses victories-main losses-main
-                               net-victories net-victories-main points]}]
-  [[:div name]
-   [:div opponent]
-   [:div.winner victories (when (not= victories-main victories)
-                            (str " (" victories-main ")"))]
-   [:div.loser losses (when (not= losses-main losses)
-                        (str " (" losses-main ")"))]
-   [:div {:class (if (> net-victories 0) "winner" "loser")} net-victories]
-   [:div {:class (if (> net-victories-main 0) "winner" "loser")} net-victories-main]
-   [:div.gray points] [:div]])
 
 (defn scores-a-b [players-data p1 p2]
   (->> players-data
@@ -61,6 +50,23 @@
                                         :else 0))])
      [:div]]))
 
+(defn scoring-total-row [players-data]
+  (pprint players-data)
+  (let [all-points (->> players-data (map :points))
+        high (apply max all-points)
+        low (apply min all-points)]
+    [:<>
+     [:div.row-line]
+     [:div.bold "TOTAL"] [:div]
+     (for [p calc/players]
+       (let [points (->> players-data (find-first (attr= :name p)) :points)
+             style (cond (= points high) "winner"
+                         (= points low) "loser"
+                         :else nil)]
+         ^{:key (str "total-" p)}
+         [:div {:class style} points]))
+     [:div]]))
+
 (defn scoring-table [players-data]
   [:div.grid {:style {:grid-template-columns "120px 80px 60px 60px 60px 1fr"}}
    [:div.bold "Pair"] [:div.bold "Sets"]
@@ -68,12 +74,8 @@
    [:div]
    (->> calc/player-pairs
         (mapcat (fn [[p1 p2]] (scoring-row players-data p1 p2))))
-   [:div.row-line]
-   [:div.bold "TOTAL"] [:div]
-   (for [p calc/players]
-     ^{:key (str "total-" p)}
-     [:div.bold (->> players-data (find-first (attr= :name p)) :points)])
-   [:div]])
+   [scoring-total-row players-data]
+   ])
 
 (defn view []
   (let [year @(rf/subscribe [:selected-year])
