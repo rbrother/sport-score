@@ -49,9 +49,7 @@
                   [:div (inc index)]
                   [:div.link {:on-click #(rf/dispatch [::goto-date date])} date]
                   [:div (count sets)]
-                  [player-points-cells players include-in-year-points?]
-                  [:div] ;; 1fr padding
-                  ]))
+                  [player-points-cells players include-in-year-points?]]))
              reverse)))
 
 (defn raw-data-editor []
@@ -77,11 +75,10 @@
 
 (defn points-table []
   (let [year @(rf/subscribe [:selected-year])
-        year-data @(rf/subscribe [:year-summary year])
-        player-cols (s/join " " (repeat (count calc/players) "80px"))]
-    [:div.grid {:style {:grid-template-columns (str "50px 100px auto " player-cols " 1fr")}}
+        year-data @(rf/subscribe [:year-summary year])]
+    [:div.grid {:style {:grid-template-columns "min-content 100px min-content repeat(3, 80px)"}}
      [:div.bold "#"] [:div.bold "Date"] [:div.bold "Sets"]
-     (into [:<>] (for [p calc/players] [:div.bold p])) [:div]
+     (into [:<>] (for [p calc/players] [:div.bold p]))
      [:div.row-line]
      [totals-line year-data]
      [:div.row-line]

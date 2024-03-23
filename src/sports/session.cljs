@@ -7,8 +7,8 @@
 
 (defn sets-table [sets]
   (into
-    [:div.grid {:style {:grid-template-columns "auto 80px 80px 80px 1fr"}}
-     [:div.bold "#"] [:div.bold "Player 1"] [:div.bold "Score"] [:div.bold "Player 2"] [:div]]
+    [:div.grid {:style {:grid-template-columns "min-content repeat(3, 80px)"}}
+     [:div.bold "#"] [:div.bold "Player 1"] [:div.bold "Score"] [:div.bold "Player 2"]]
     (->> sets
          (map-indexed
            (fn [index [{winner-name :name, winner-score :score}
@@ -18,8 +18,7 @@
               [:div
                [:span.winner winner-score] " - "
                [:span.loser loser-score]]
-              [:div.loser loser-name]
-              [:div]]))
+              [:div.loser loser-name]]))
          reverse)))
 
 (defn scores-a-b [players-data p1 p2]
@@ -47,11 +46,9 @@
      (for [p calc/players]
        ^{:key p} [:div (hide-zero (cond (= p p1) points1
                                         (= p p2) points2
-                                        :else 0))])
-     [:div]]))
+                                        :else 0))])]))
 
 (defn scoring-total-row [players-data]
-  (pprint players-data)
   (let [all-points (->> players-data (map :points))
         high (apply max all-points)
         low (apply min all-points)]
@@ -64,18 +61,15 @@
                          (= points low) "loser"
                          :else nil)]
          ^{:key (str "total-" p)}
-         [:div {:class style} points]))
-     [:div]]))
+         [:div {:class style} points]))]))
 
 (defn scoring-table [players-data]
-  [:div.grid {:style {:grid-template-columns "120px 80px 60px 60px 60px 1fr"}}
+  [:div.grid {:style {:grid-template-columns "120px 80px repeat(3, 60px)"}}
    [:div.bold "Pair"] [:div.bold "Sets"]
    (for [p calc/players] ^{:key p} [:div.bold p])
-   [:div]
    (->> calc/player-pairs
         (mapcat (fn [[p1 p2]] (scoring-row players-data p1 p2))))
-   [scoring-total-row players-data]
-   ])
+   [scoring-total-row players-data]])
 
 (defn view []
   (let [year @(rf/subscribe [:selected-year])
