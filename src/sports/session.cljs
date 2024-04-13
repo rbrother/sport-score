@@ -1,8 +1,11 @@
 (ns sports.session
   (:require [cljs.pprint :refer [pprint]]
+            [clojure.edn :as edn]
             [medley.core :refer [find-first]]
             [re-frame.core :as rf]
+            [reagent.core :as reagent]
             [sports.calculations :as calc]
+            [sports.util :as util]
             [sports.util :refer [attr=]]))
 
 (defn sets-table [sets]
@@ -71,6 +74,18 @@
         (mapcat (fn [[p1 p2]] (scoring-row players-data p1 p2))))
    [scoring-total-row players-data]])
 
+(defn raw-data-editor [sets]
+  (let [state (reagent/atom {:text (util/pprint-str sets)})]
+    (fn []
+      [:<>
+       [:div "Raw data editor"]
+       [:div [:button.navigation
+              {:on-click #(rf/dispatch [::raw-data-edited (:text @state)])}
+              "Apply Raw Data Edits"]]
+       [:div
+        [:textarea {:rows 12, :cols 80, :value (:text @state)
+                    :on-change (util/set-local-state state [:text])}]]])))
+
 (defn view []
   (let [year @(rf/subscribe [:selected-year])
         date @(rf/subscribe [:selected-session])
@@ -80,7 +95,8 @@
       [:button.navigation {:on-click #(rf/dispatch [:show-year year])} "← " year]
       [:button.navigation {:on-click #(rf/dispatch [::set-addition])} "Add set..."]]
      [scoring-table players]
-     [sets-table sets]]))
+     [sets-table sets]
+     [raw-data-editor sets]]))
 
 ;; events
 
@@ -88,3 +104,7 @@
   (fn [db _]
     (assoc-in db [:navigation :page] :add-set)))
 
+(rf/reg-event-db ::raw-data-edited
+  (fn [{{year :year session :session} :navigation :as db} [_ s]]
+    (let [data (edn/read-string s)]
+      (assoc-in db [:years year session] data))))
