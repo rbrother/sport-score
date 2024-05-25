@@ -99,9 +99,11 @@
 (rf/reg-event-db ::new-session
   (fn [{{year :year} :navigation :as db} [_ date-str]]
     (let [date (keyword date-str)]
-      (-> db
-          (assoc-in [:years year date] [])
-          (assoc :navigation {:page :session, :year year, :session date})))))
+      (if-not (re-matches #"\d\d\d\d-\d\d-\d\d" date-str)
+        (assoc db :status "Invalid date format, must use YYYY-MM-DD")
+        (-> db
+            (assoc-in [:years year date] [])
+            (assoc :navigation {:page :session, :year year, :session date}))))))
 
 (rf/reg-event-db ::raw-data-edited
   (fn [{{year :year} :navigation :as db} [_ s]]
