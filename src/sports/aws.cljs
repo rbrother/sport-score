@@ -45,7 +45,8 @@
                  :2019K, :2019S
                  :2020K, :2020S
                  :2021K, :2021S
-                 :2022K, :2022S])
+                 :2022K, :2022S,
+                 :2023, :2024, :2025])
 
 (rf/reg-event-db ::items-downloaded [log/intercept]
   (fn [db [_ {items :body}]]
