@@ -61,6 +61,32 @@
      :include-in-year-points? (= (set players) (set session-players)) ;; all-players-present?
      :sets session-sets}))
 
+(defn cumulative-scores-over-time [year-data]
+  "Calculate cumulative scores for each player over time for charting"
+  (let [amended-sessions (->> year-data (map-vals analyze-session))
+        ;; Get sessions sorted by date, only including sessions with all players
+        sorted-sessions (->> amended-sessions
+                            (filter (fn [[_ session]] (:include-in-year-points? session)))
+                            (sort-by first))]
+    (->> players
+         (map (fn [player-name]
+                (let [cumulative-data
+                      (->> sorted-sessions
+                           (reduce (fn [acc [date session]]
+                                     (let [player-data (->> (:players session)
+                                                           (filter (attr= :name player-name))
+                                                           first)
+                                           player-points (or (:points player-data) 0)
+                                           prev-total (or (:cumulative (last acc)) 0)
+                                           new-total (+ prev-total player-points)]
+                                       (conj acc {:date (name date)
+                                                 :points player-points
+                                                 :cumulative new-total})))
+                                   []))]
+                  {:name player-name
+                   :data cumulative-data})))
+         vec)))
+
 (defn year-summary [year-data]
   (let [amended-sessions (->> year-data (map-vals analyze-session))]
     {:sessions amended-sessions

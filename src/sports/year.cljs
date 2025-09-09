@@ -5,6 +5,7 @@
             [re-frame.core :as rf]
             [reagent.core :as reagent]
             [sports.calculations :as calc]
+            [sports.chart :as chart]
             [sports.config :refer [debug?]]
             [sports.import :as import]
             [sports.util :as util :refer [attr=]]))
@@ -87,12 +88,15 @@
      [totals-line year-data]]))
 
 (defn view []
-  [:div
-   [:div [:span.large.bold "Year " @(rf/subscribe [:selected-year])]
-    [:button.navigation {:on-click #(rf/dispatch [::all-years])} "← Years list"]]
-   [new-session-widget]
-   [points-table]
-   (when debug? [raw-data-editor])])
+  (let [year @(rf/subscribe [:selected-year])
+        cumulative-data @(rf/subscribe [:cumulative-scores year])]
+    [:div
+     [:div [:span.large.bold "Year " year]
+      [:button.navigation {:on-click #(rf/dispatch [::all-years])} "← Years list"]]
+     [new-session-widget]
+     [points-table]
+     [chart/score-development-chart cumulative-data]
+     (when debug? [raw-data-editor])]))
 
 ;; EVENTS
 

@@ -26,6 +26,12 @@
   (fn [year-data _]
     (calc/year-summary year-data)))
 
+(rf/reg-sub :cumulative-scores
+  (fn [[_ year]]
+    (rf/subscribe [:year-data year]))
+  (fn [year-data _]
+    (calc/cumulative-scores-over-time year-data)))
+
 ;; See https://day8.github.io/re-frame/subscriptions/ for more complex subscription syntax like below
 (rf/reg-sub :session-data
   (fn [[_ year _date]]
