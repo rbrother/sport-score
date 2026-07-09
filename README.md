@@ -126,6 +126,25 @@ Opening the app in your browser starts a
 [ClojureScript browser REPL](https://clojurescript.org/reference/repl#using-the-browser-as-an-evaluation-environment),
 to which you may now connect.
 
+### Running Tests
+
+Unit tests live in `test/` and run via [`karma`](https://karma-runner.github.io/) with a headless
+Chrome/Chromium browser. Run them once with:
+
+```sh
+npm test
+```
+
+If Chrome/Chromium isn't on your `PATH` under its default name, point `CHROME_BIN` at it, e.g.:
+
+```sh
+CHROME_BIN=/snap/bin/chromium npm test
+```
+
+When `npm run watch` (or `npx shadow-cljs watch app browser-test karma-test`) is running, tests are
+also recompiled automatically; open [http://localhost:8290/](http://localhost:8290/) to run the
+`browser-test` build's tests directly in your browser.
+
 #### Connecting to the browser REPL from your editor
 
 See

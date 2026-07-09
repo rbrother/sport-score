@@ -4,7 +4,8 @@
 		"ancient": "clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version \"RELEASE\"}}}' -m antq.core",
 		"watch": "npx shadow-cljs watch app browser-test karma-test",
 		"release": "npx shadow-cljs release app",
-		"build-report": "npx shadow-cljs run shadow.cljs.build-report app target/build-report.html"
+		"build-report": "npx shadow-cljs run shadow.cljs.build-report app target/build-report.html",
+		"test": "npx shadow-cljs compile karma-test && npx karma start karma.conf.js --single-run"
 	},
 	"dependencies": {
 		"chart.js": "^4.5.1",
@@ -13,6 +14,10 @@
 		"react-dom": "18.2.0"
 	},
 	"devDependencies": {
-		"shadow-cljs": "3.4.11"
+		"shadow-cljs": "3.4.11",
+		"karma": "^6.4.4",
+		"karma-cljs-test": "^0.1.0",
+		"karma-chrome-launcher": "^3.2.0",
+		"karma-junit-reporter": "^2.0.1"
 	}
 }

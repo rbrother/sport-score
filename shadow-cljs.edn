@@ -32,4 +32,14 @@
    :dev
    {:compiler-options
     {:closure-defines
-     { }}}}}}
+     { }}}}
+
+  :browser-test
+  {:target    :browser-test
+   :test-dir  "target/browser-test"
+   :ns-regexp "-test$"}
+
+  :karma-test
+  {:target    :karma
+   :ns-regexp "-test$"
+   :output-to "target/karma-test.js"}}}
