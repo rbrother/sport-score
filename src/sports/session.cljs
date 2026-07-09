@@ -40,16 +40,20 @@
                           1 ["winner" "loser"]
                           0 [nil nil]
                           -1 ["loser" "winner"])]
-    [[:div [:span {:class class1} p1] " - " [:span {:class class2} p2]]
+    [^{:key (str p1 "-" p2 "-label")}
+     [:div [:span {:class class1} p1] " - " [:span {:class class2} p2]]
+     ^{:key (str p1 "-" p2 "-victories")}
      [:div
       [:span {:class class1}
        victories1 (when (not= victories1 vic-main1) [:span "(" vic-main1 ")"])] " - "
       [:span {:class class2}
        victories2 (when (not= victories2 vic-main2) [:span "(" vic-main2 ")"])]]
-     (for [p calc/players]
-       ^{:key p} [:div (hide-zero (cond (= p p1) points1
-                                        (= p p2) points2
-                                        :else 0))])]))
+     ^{:key (str p1 "-" p2 "-points")}
+     [:<>
+      (for [p calc/players]
+        ^{:key p} [:div (hide-zero (cond (= p p1) points1
+                                         (= p p2) points2
+                                         :else 0))])]]))
 
 (defn scoring-total-row [players-data]
   (let [all-points (->> players-data (map :points))
