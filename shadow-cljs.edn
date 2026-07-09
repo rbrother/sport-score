@@ -29,6 +29,8 @@
    {:app {:init-fn sports.core/init}}
    :devtools
    {:preloads []}
+   :compiler-options
+   {:warnings {:redef false}}
    :dev
    {:compiler-options
     {:closure-defines
