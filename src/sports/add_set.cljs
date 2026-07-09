@@ -32,13 +32,11 @@
 
 (defn point-range [index players-data]
   (let [winner-score (get-in players-data [0 :score])]
-    (if (zero? index) ;; winner?
-      (range 11 20) ;; winner points
-      (cond
-        (not winner-score) []
-        (= winner-score 11) (range 0 10)
-        :else [(- winner-score 2)] ;; with large score, difference must be 2
-        ))))
+    (cond
+      (not winner-score) []
+      (= winner-score 11) (range 0 10)
+      :else [(- winner-score 2)] ;; with large score, difference must be 2
+      )))
 
 (defn score-selector [index state]
   (let [player-data (get @state index)]
@@ -50,9 +48,34 @@
               :on-click (fn [] (swap! state update-score index points))}
              points]))))
 
+(defn winner-score-selector [state expanded?]
+  (let [score (get-in @state [0 :score])
+        show-other? (or @expanded? (and score (not= score 11)))]
+    [:div
+     [:div
+      [:button
+       {:class (if (= score 11) "navigation" "idle")
+        :style {:margin "4px"}
+        :on-click (fn [] (reset! expanded? false) (swap! state update-score 0 11))}
+       "11"]
+      [:button
+       {:class (if show-other? "navigation" "idle")
+        :style {:margin "4px"}
+        :on-click (fn [] (reset! expanded? true) (swap! state update-score 0 12))}
+       "12+"]]
+     (when show-other?
+       (into [:div]
+             (for [points (range 12 20)]
+               [:button
+                {:class (if (= points score) "navigation" "idle")
+                 :style {:margin "4px"}
+                 :on-click (fn [] (swap! state update-score 0 points))}
+                points])))]))
+
 (defn view []
   (let [local-state (reagent/atom [{:name nil :score nil}
                                    {:name nil :score nil}])
+        winner-expanded? (reagent/atom false)
         {:keys [session]} @(rf/subscribe [:navigation])]
     (fn []
       (let [ok-to-add? (and (get-in @local-state [0 :name])
@@ -63,7 +86,7 @@
          [:div.grid {:style {:grid-template-columns "min-content auto"
                              :align-items "center"}}
           [:div.winner "WINNER"] [:div [player-selector 0 local-state]]
-          [:div "Score"] [score-selector 0 local-state]]
+          [:div "Score"] [winner-score-selector local-state winner-expanded?]]
          [:div.grid {:style {:grid-template-columns "min-content auto"
                              :align-items "center"}}
           [:div.loser "LOSER"] [:div [player-selector 1 local-state]]
