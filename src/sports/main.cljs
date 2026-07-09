@@ -4,7 +4,8 @@
             [sports.session :as session]
             [sports.year :as year]
             [sports.years :as years]
-            [sports.add-set :as add-set]))
+            [sports.add-set :as add-set]
+            [sports.add-session :as add-session]))
 
 ;; VIEWS
 
@@ -20,7 +21,8 @@
        :years [years/view]
        :year [year/view]
        :session [session/view]
-       :add-set [add-set/view])]))
+       :add-set [add-set/view]
+       :add-session [add-session/view])]))
 
 ;; EVENTS
 

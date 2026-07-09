@@ -10,19 +10,6 @@
             [sports.import :as import]
             [sports.util :as util :refer [attr=]]))
 
-(defn new-session-widget []
-  (let [local-state (reagent/atom {})]
-    (fn []
-      [:div
-       "Date (YYYY-MM-DD) "
-       [:input {:type :text
-                :on-change (fn [event]
-                             (let [value (-> event .-target .-value)]
-                               (swap! local-state #(assoc % :date value))))}]
-       [:button.navigation
-        {:on-click #(rf/dispatch [::new-session (:date @local-state)])}
-        "Add Session"]])))
-
 (defn mark-ignored [s ignore?]
   (if ignore? (str "(" s ")") s))
 
@@ -92,22 +79,17 @@
         cumulative-data @(rf/subscribe [:cumulative-scores year])]
     [:div
      [:div [:span.large.bold "Year " year]
-      [:button.navigation {:on-click #(rf/dispatch [::all-years])} "← Years list"]]
-     [new-session-widget]
+      [:button.navigation {:on-click #(rf/dispatch [::all-years])} "← Years list"]
+      [:button.navigation {:on-click #(rf/dispatch [::add-session])} "Add Session"]]
      [points-table]
      [chart/score-development-chart cumulative-data]
      (when debug? [raw-data-editor])]))
 
 ;; EVENTS
 
-(rf/reg-event-db ::new-session
-  (fn [{{year :year} :navigation :as db} [_ date-str]]
-    (let [date (keyword date-str)]
-      (if-not (re-matches #"\d\d\d\d-\d\d-\d\d" date-str)
-        (assoc db :status "Invalid date format, must use YYYY-MM-DD")
-        (-> db
-            (assoc-in [:years year date] [])
-            (assoc :navigation {:page :session, :year year, :session date}))))))
+(rf/reg-event-db ::add-session
+  (fn [{{year :year} :navigation :as db} _]
+    (assoc db :navigation {:page :add-session, :year year})))
 
 (rf/reg-event-db ::raw-data-edited
   (fn [{{year :year} :navigation :as db} [_ s]]
