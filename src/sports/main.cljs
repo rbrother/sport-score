@@ -14,9 +14,10 @@
   (let [page @(rf/subscribe [:page])
         status @(rf/subscribe [:status])]
     [:div
-     [:div [:span.large.bold "Sport Tracker"]
-      [:button.navigation {:on-click #(rf/dispatch [::aws/save])} "Save Data"]
-      status]
+     (when (not= page :add-set)
+       [:div [:span.large.bold "Sport Tracker"]
+        [:button.navigation {:on-click #(rf/dispatch [::aws/save])} "Save Data"]
+        status])
      (case page
        :years [years/view]
        :year [year/view]

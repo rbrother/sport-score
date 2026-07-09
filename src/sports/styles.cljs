@@ -6,7 +6,7 @@
 (def button-base
   {:border (str "2px solid " button-blue),
    :background "#2070FF", :color :black,
-   :padding "8px 20px 8px 20px", :margin "10px"
+   :padding "8px 8px 8px 8px", :margin "8px"
    :font-size "16px", :font-weight "bold"
    :border-radius "6px"
    :outline 0

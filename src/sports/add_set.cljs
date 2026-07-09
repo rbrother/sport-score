@@ -26,7 +26,7 @@
      (for [p calc/players]
        ^{:key p} [:button
                   {:class (if (= p (:name player-data)) "navigation" "idle")
-                   :style {:min-width "100px"}
+                   :style {:min-width "80px"}
                    :on-click (fn [] (swap! state update-names index p))}
                   p])]))
 
@@ -58,7 +58,7 @@
       (let [ok-to-add? (and (get-in @local-state [0 :name])
                             (get-in @local-state [1 :name]))]
         [:div
-         [:div [:span.large.bold "New Set to Session " session]
+         [:div [:span.large.bold "New Set "]
           [:button.navigation {:on-click #(rf/dispatch [::cancel])} "← Back to Session"]]
          [:div.grid {:style {:grid-template-columns "min-content auto"
                              :align-items "center"}}
