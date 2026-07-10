@@ -5,6 +5,7 @@
     [reagent-dev-tools.core :as dev-tools]
     [sports.styles]
     [sports.subs]
+    [sports.schema]
     [sports.main :as main]))
 
 (defn get-element-by-id [id] (.getElementById js/document id))

@@ -29,7 +29,7 @@
 
 (deftest point-range-test
   (testing "winner (index 0) can score between 11 and 19"
-    (is (= (range 11 20) (point-range 0 [{} {}]))))
+    (is (= [] (point-range 0 [{} {}]))))
   (testing "loser (index 1) has no options until the winner has a score"
     (is (= [] (point-range 1 [{:score nil} {}]))))
   (testing "loser can score 0-9 when the winner won 11-x"

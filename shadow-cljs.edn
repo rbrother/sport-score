@@ -9,6 +9,7 @@
   [reagent "2.0.1"]
   [day8.re-frame/http-fx "0.2.4"]
   [metosin/reagent-dev-tools "1.2.0"]
+  [metosin/malli "0.16.4"]
   [garden "1.3.10"]
   [net.dhleong/spade "2.0.0"]
   [binaryage/devtools "1.0.7"]

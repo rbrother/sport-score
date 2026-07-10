@@ -9,6 +9,7 @@
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
                  [re-frame "1.4.7"]
+                 [metosin/malli "0.16.4"]
                  [garden "1.3.10"]
                  [net.dhleong/spade "2.0.0"]
                  [medley "1.4.0"]
