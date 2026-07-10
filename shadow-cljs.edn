@@ -15,7 +15,8 @@
   [binaryage/devtools "1.0.7"]
   [medley "1.4.0"]
   [com.andrewmcveigh/cljs-time "0.5.2"]
-  [cljs-ajax "0.8.4"]]
+ [cljs-ajax "0.8.4"]
+ [venantius/accountant "0.2.5"]]
 
  :dev-http
  {8280 "resources/public"

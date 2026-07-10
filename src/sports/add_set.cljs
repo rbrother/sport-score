@@ -3,6 +3,7 @@
             [reagent.core :as reagent]
             [sports.calculations :as calc]
             [sports.log :as log]
+            [sports.routes :as routes]
             [sports.util :as util]))
 
 (defn update-names [state index value]
@@ -81,8 +82,7 @@
       (let [ok-to-add? (and (get-in @local-state [0 :name])
                             (get-in @local-state [1 :name]))]
         [:div
-         [:div [:span.large.bold "New Set "]
-          [:button.navigation {:on-click #(rf/dispatch [::cancel])} "← Back to Session"]]
+         [:div [:span.large.bold "New Set "]]
          [:div.winner "WINNER"]
          [:div.border
           [:div [player-selector 0 local-state]]
@@ -100,11 +100,8 @@
 
 ;; events
 
-(rf/reg-event-db ::cancel [log/intercept]
-  (fn [db _] (assoc-in db [:navigation :page] :session)))
-
 (rf/reg-event-fx ::add-game [log/intercept]
   (fn [{{{:keys [year session]} :navigation :as db} :db} [_ values]]
-    {:db (-> db (update-in [:years year session] #(conj % values))
-             (assoc-in [:navigation :page] :session))
+    {:db (update-in db [:years year session] #(conj % values))
+     :navigate! (routes/session-url year session)
      :dispatch [:sports.aws/save]}))

@@ -5,6 +5,7 @@
             [re-frame.core :as rf]
             [reagent.core :as reagent]
             [sports.calculations :as calc]
+            [sports.routes :as routes]
             [sports.util :as util]
             [sports.util :refer [attr=]]))
 
@@ -84,12 +85,11 @@
         {:keys [sets players]} @(rf/subscribe [:session-data year date])]
     [:<>
      [:div [:span.large.bold "Session " date]
-      [:button.navigation {:on-click #(rf/dispatch [:show-year year])} "← " year]
-      [:button.navigation {:on-click #(rf/dispatch [::set-addition])} "Add set..."]]
+      [:button.navigation {:on-click #(routes/navigate! (routes/add-set-url year date))} "Add set..."]]
      [scoring-table players]
      [sets-table sets]
      [:div [:button.navigation
-            {:on-click #(rf/dispatch [::edit-raw-data])}
+            {:on-click #(routes/navigate! (routes/raw-data-url year date))}
             "Edit Session Raw Data"]]]))
 
 (defn raw-data-editor-view []
@@ -99,8 +99,7 @@
         state (reagent/atom {:text (util/pprint-str sets)})]
     (fn []
       [:<>
-       [:div [:span.large.bold "Edit Raw Data " date]
-        [:button.navigation {:on-click #(rf/dispatch [::raw-data-cancel])} "← Back to Session"]]
+       [:div [:span.large.bold "Edit Raw Data " date]]
        [:div
         [:textarea {:rows 20, :cols 100, :value (:text @state)
                     :on-change (util/set-local-state state [:text])}]]
@@ -110,21 +109,9 @@
 
 ;; events
 
-(rf/reg-event-db ::set-addition
-  (fn [db _]
-    (assoc-in db [:navigation :page] :add-set)))
-
-(rf/reg-event-db ::edit-raw-data
-  (fn [db _]
-    (assoc-in db [:navigation :page] :session-raw-data)))
-
-(rf/reg-event-db ::raw-data-cancel
-  (fn [db _]
-    (assoc-in db [:navigation :page] :session)))
-
-(rf/reg-event-db ::raw-data-edited
-  (fn [{{year :year session :session} :navigation :as db} [_ s]]
+(rf/reg-event-fx ::raw-data-edited
+  (fn [{{{year :year session :session} :navigation :as db} :db} [_ s]]
     (let [data (edn/read-string s)]
-      (-> db
-          (assoc-in [:years year session] data)
-          (assoc-in [:navigation :page] :session)))))
+      {:db (assoc-in db [:years year session] data)
+       :navigate! (routes/session-url year session)})))
+

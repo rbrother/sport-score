@@ -6,6 +6,7 @@
     [sports.styles]
     [sports.subs]
     [sports.schema]
+    [sports.routes :as routes]
     [sports.main :as main]))
 
 (defn get-element-by-id [id] (.getElementById js/document id))
@@ -18,6 +19,7 @@
 
 (defn init []
   (re-frame/dispatch-sync [::main/initialize-db])
+  (routes/init-routes!)
   (when ^boolean js/goog.DEBUG
     (dev-tools/start! {:state-atom re-frame.db/app-db}))
   (mount-root))

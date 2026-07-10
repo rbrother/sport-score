@@ -8,6 +8,7 @@
             [sports.chart :as chart]
             [sports.config :refer [debug?]]
             [sports.import :as import]
+            [sports.routes :as routes]
             [sports.util :as util :refer [attr=]]))
 
 (defn mark-ignored [s ignore?]
@@ -27,7 +28,7 @@
              (some-> points (.toFixed 1)
                      (mark-ignored (not include?)))]))))
 
-(defn session-rows [year-data]
+(defn session-rows [year year-data]
   (into [:<>]
         (->> year-data
              (sort-by first)
@@ -35,7 +36,7 @@
                (fn [index [date {:keys [players sets include-in-year-points?] :as _session}]]
                  [:<>
                   [:div (inc index)]
-                  [:div.link {:on-click #(rf/dispatch [::goto-date date])} date]
+                  [:div.link {:on-click #(routes/navigate! (routes/session-url year date))} date]
                   [:div (count sets)]
                   [player-points-cells players include-in-year-points?]]))
              reverse)))
@@ -70,7 +71,7 @@
      [:div.row-line]
      [totals-line year-data]
      [:div.row-line]
-     [session-rows (:sessions year-data)]
+     [session-rows year (:sessions year-data)]
      [:div.row-line]
      [totals-line year-data]]))
 
@@ -79,17 +80,12 @@
         cumulative-data @(rf/subscribe [:cumulative-scores year])]
     [:div
      [:div [:span.large.bold "Year " year]
-      [:button.navigation {:on-click #(rf/dispatch [::all-years])} "← Years list"]
-      [:button.navigation {:on-click #(rf/dispatch [::add-session])} "Add Session"]]
+      [:button.navigation {:on-click #(routes/navigate! (routes/add-session-url year))} "Add Session"]]
      [points-table]
      [chart/score-development-chart cumulative-data]
      (when debug? [raw-data-editor])]))
 
 ;; EVENTS
-
-(rf/reg-event-db ::add-session
-  (fn [{{year :year} :navigation :as db} _]
-    (assoc db :navigation {:page :add-session, :year year})))
 
 (rf/reg-event-db ::raw-data-edited
   (fn [{{year :year} :navigation :as db} [_ s]]
@@ -100,13 +96,3 @@
   (fn [{{year :year} :navigation :as db} [_ s]]
     (let [data (import/year-data-from-csv s)]
       (assoc-in db [:years year] data))))
-
-(rf/reg-event-db ::goto-date
-  (fn [db [_ date]]
-    (update db :navigation
-            #(assoc % :session date
-                      :page :session))))
-
-(rf/reg-event-db ::all-years
-  (fn [db _]
-    (assoc db :navigation {:page :years})))
