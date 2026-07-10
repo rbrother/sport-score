@@ -83,14 +83,16 @@
         [:div
          [:div [:span.large.bold "New Set "]
           [:button.navigation {:on-click #(rf/dispatch [::cancel])} "← Back to Session"]]
-         [:div.grid {:style {:grid-template-columns "min-content auto"
-                             :align-items "center"}}
-          [:div.winner "WINNER"] [:div [player-selector 0 local-state]]
-          [:div "Score"] [winner-score-selector local-state winner-expanded?]]
-         [:div.grid {:style {:grid-template-columns "min-content auto"
-                             :align-items "center"}}
-          [:div.loser "LOSER"] [:div [player-selector 1 local-state]]
-          [:div "Score"] [score-selector 1 local-state]]
+         [:div.winner "WINNER"]
+         [:div.border
+          [:div [player-selector 0 local-state]]
+          [:hr]
+          [winner-score-selector local-state winner-expanded?]]
+         [:div.loser "LOSER"]
+         [:div.border
+           [:div [player-selector 1 local-state]]
+           [:hr]
+           [score-selector 1 local-state]]
          (when ok-to-add?
            [:div [:button.navigation
                   {:on-click (when ok-to-add? #(rf/dispatch [::add-game @local-state]))}

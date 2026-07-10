@@ -7,6 +7,7 @@
   {:border (str "2px solid " button-blue),
    :background "#2070FF", :color :black,
    :padding "8px 8px 8px 8px", :margin "8px"
+   :min-width "40px"
    :font-size "16px", :font-weight "bold"
    :border-radius "6px"
    :outline 0
@@ -33,6 +34,9 @@
   [:select {:margin "6px", :padding "4px"}]
   [:input.score {:width "40px", :text-align "center"}]
   [:input:read-only {:color "#777"}]
+  [:hr {:border "none" :border-top "1px solid #666"}]
+  [:div.border {:border "1px solid gray"
+                :margin "8px 0 8px 0" :padding "8px"}]
   [:div.grid {:display "grid" :border "1px solid gray" :grid-row-gap "8px" :grid-column-gap "16px"
               :margin "8px 0 8px 0" :padding "8px"}]
   [:div.row-line {:grid-column "1 / -1", :height "1px", :background "#888"}]
