@@ -4,6 +4,7 @@
             [medley.core :refer [find-first]]
             [re-frame.core :as rf]
             [reagent.core :as reagent]
+            [sports.aws :as aws]
             [sports.calculations :as calc]
             [sports.routes :as routes]
             [sports.util :as util]
@@ -113,5 +114,6 @@
   (fn [{{{year :year session :session} :navigation :as db} :db} [_ s]]
     (let [data (edn/read-string s)]
       {:db (assoc-in db [:years year session] data)
-       :navigate! (routes/session-url year session)})))
+       :navigate! (routes/session-url year session)
+       :dispatch [::aws/save]})))
 

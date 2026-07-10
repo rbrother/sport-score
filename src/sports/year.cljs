@@ -4,6 +4,7 @@
             [medley.core :refer [find-first]]
             [re-frame.core :as rf]
             [reagent.core :as reagent]
+            [sports.aws :as aws]
             [sports.calculations :as calc]
             [sports.chart :as chart]
             [sports.config :refer [debug?]]
@@ -87,12 +88,14 @@
 
 ;; EVENTS
 
-(rf/reg-event-db ::raw-data-edited
-  (fn [{{year :year} :navigation :as db} [_ s]]
+(rf/reg-event-fx ::raw-data-edited
+  (fn [{{{year :year} :navigation :as db} :db} [_ s]]
     (let [data (edn/read-string s)]
-      (assoc-in db [:years year] data))))
+      {:db (assoc-in db [:years year] data)
+       :dispatch [::aws/save]})))
 
-(rf/reg-event-db ::import-csv
-  (fn [{{year :year} :navigation :as db} [_ s]]
+(rf/reg-event-fx ::import-csv
+  (fn [{{{year :year} :navigation :as db} :db} [_ s]]
     (let [data (import/year-data-from-csv s)]
-      (assoc-in db [:years year] data))))
+      {:db (assoc-in db [:years year] data)
+       :dispatch [::aws/save]})))

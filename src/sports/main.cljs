@@ -22,10 +22,6 @@
         status @(rf/subscribe [:status])]
     [:div
      [validation-error-banner]
-     (when (not (#{:add-set :session-raw-data} page))
-       [:div [:span.large.bold "Sport Tracker"]
-        [:button.navigation {:on-click #(rf/dispatch [::aws/save])} "Save Data"]
-        status])
      (case page
        :years [years/view]
        :year [year/view]

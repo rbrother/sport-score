@@ -1,6 +1,7 @@
 (ns sports.add-session
   (:require [re-frame.core :as rf]
             [reagent.core :as reagent]
+            [sports.aws :as aws]
             [sports.log :as log]
             [sports.routes :as routes]))
 
@@ -35,4 +36,5 @@
       (if-not (re-matches #"\d\d\d\d-\d\d-\d\d" date-str)
         {:db (assoc db :status "Invalid date format, must use YYYY-MM-DD")}
         {:db (assoc-in db [:years year date] [])
-         :navigate! (routes/session-url year date)}))))
+         :navigate! (routes/session-url year date)
+         :dispatch [::aws/save]}))))
