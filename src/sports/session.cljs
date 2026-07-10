@@ -13,7 +13,7 @@
 (defn sets-table [sets]
   (into
     [:div.grid {:style {:grid-template-columns "min-content repeat(3, 80px)"}}
-     [:div.bold "#"] [:div.bold "Player 1"] [:div.bold "Score"] [:div.bold "Player 2"]]
+     [:div.bold "#"] [:div.bold "Winner"] [:div.bold "Score"] [:div.bold "Loser"]]
     (->> sets
          (map-indexed
            (fn [index [{winner-name :name, winner-score :score}
