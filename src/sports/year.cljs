@@ -10,7 +10,8 @@
             [sports.config :refer [debug?]]
             [sports.import :as import]
             [sports.routes :as routes]
-            [sports.util :as util :refer [attr=]]))
+            [sports.util :as util :refer [attr=]]
+            [sports.widgets :as widgets]))
 
 (defn mark-ignored [s ignore?]
   (if ignore? (str "(" s ")") s))
@@ -37,7 +38,8 @@
                (fn [index [date {:keys [players sets include-in-year-points?] :as _session}]]
                  [:<>
                   [:div (inc index)]
-                  [:div.link {:on-click #(routes/navigate! (routes/session-url year date))} date]
+                  [:div.link {:style {:white-space "nowrap"}
+                              :on-click #(routes/navigate! (routes/session-url year date))} date]
                   [:div (count sets)]
                   [player-points-cells players include-in-year-points?]]))
              reverse)))
@@ -46,45 +48,53 @@
   (let [year-data @(rf/subscribe [:current-year-data])
         state (reagent/atom {:text (util/pprint-str year-data)})]
     (fn []
-      [:<>
-       [:div "Raw data editor"]
-       [:div [:button.navigation
-              {:on-click #(rf/dispatch [::raw-data-edited (:text @state)])}
-              "Apply Raw Data Edits"]
-        [:button.navigation
-         {:on-click #(rf/dispatch [::import-csv (:text @state)])}
-         "Import CSV"]]
+      [:div.card
+       [:div.card-title "Raw data editor"]
        [:div
         [:textarea {:rows 30, :cols 80, :value (:text @state)
-                    :on-change (util/set-local-state state [:text])}]]])))
+                    :on-change (util/set-local-state state [:text])}]]
+       [:div.button-row
+        [:button.navigation
+         {:on-click #(rf/dispatch [::raw-data-edited (:text @state)])}
+         "Apply Raw Data Edits"]
+        [:button.idle
+         {:on-click #(rf/dispatch [::import-csv (:text @state)])}
+         "Import CSV"]]])))
 
 (defn totals-line [year-data]
   [:<>
-   [:div] [:div "TOTAL"] [:div]
+   [:div] [:div.bold "TOTAL"] [:div]
    [player-points-cells (:players year-data) true]])
 
 (defn points-table []
   (let [year @(rf/subscribe [:selected-year])
         year-data @(rf/subscribe [:year-summary year])]
-    [:div.grid {:style {:grid-template-columns "min-content 100px min-content repeat(3, 80px)"}}
-     [:div.bold "#"] [:div.bold "Date"] [:div.bold "Sets"]
-     (into [:<>] (for [p calc/players] [:div.bold p]))
-     [:div.row-line]
-     [totals-line year-data]
-     [:div.row-line]
-     [session-rows year (:sessions year-data)]
-     [:div.row-line]
-     [totals-line year-data]]))
+    [:div.card
+     [:div.card-title "Sessions"]
+     [:div.table-scroll
+      [:div.grid {:style {:grid-template-columns "20px 84px 30px repeat(3, 46px)"}}
+       [:div.col-header "#"] [:div.col-header "Date"] [:div.col-header "Sets"]
+       (into [:<>] (for [p calc/players] [:div.col-header p]))
+       [:div.row-line]
+       [totals-line year-data]
+       [:div.row-line]
+       [session-rows year (:sessions year-data)]
+       [:div.row-line]
+       [totals-line year-data]]]]))
 
 (defn view []
   (let [year @(rf/subscribe [:selected-year])
         cumulative-data @(rf/subscribe [:cumulative-scores year])]
     [:div
-     [:div [:span.large.bold "Year " year]
-      [:button.navigation {:on-click #(routes/navigate! (routes/add-session-url year))} "Add Session"]]
-     [points-table]
-     [chart/score-development-chart cumulative-data]
-     (when debug? [raw-data-editor])]))
+     [widgets/header
+      {:title (str "Year " year) :back-url (routes/years-url)
+       :action [:button.navigation
+                {:on-click #(routes/navigate! (routes/add-session-url year))}
+                "+ Session"]}]
+     [:div.page
+      [points-table]
+      [:div.chart-card [chart/score-development-chart cumulative-data]]
+      (when debug? [raw-data-editor])]]))
 
 ;; EVENTS
 

@@ -38,20 +38,27 @@
 (def chart-options
   {:responsive true
    :maintainAspectRatio false
+   :color "#9aa2b1"
    :plugins {:title {:display true
                     :text "Cumulative Score Development"
-                    :font {:size 16}}
+                    :color "#eef0f4"
+                    :font {:size 15 :weight "600"}}
             :legend {:display true
-                    :position "top"}}
+                    :position "top"
+                    :labels {:color "#eef0f4" :usePointStyle true}}}
    :scales {:x {:display true
                :title {:display true
-                      :text "Date"}
-               :grid {:display true}}
+                      :text "Date"
+                      :color "#9aa2b1"}
+               :ticks {:color "#9aa2b1"}
+               :grid {:display true :color "rgba(255,255,255,0.06)"}}
            :y {:display true
                :title {:display true
-                      :text "Cumulative Points"}
+                      :text "Cumulative Points"
+                      :color "#9aa2b1"}
+               :ticks {:color "#9aa2b1"}
                :beginAtZero true
-               :grid {:display true}}}
+               :grid {:display true :color "rgba(255,255,255,0.06)"}}}
    :interaction {:intersect false
                 :mode "index"}})
 
@@ -60,9 +67,9 @@
   (if (and cumulative-data (seq cumulative-data)
            (some #(seq (:data %)) cumulative-data))
     (let [chart-data (prepare-chart-data cumulative-data)]
-      [:div {:style {:width "100%" :height "500px" :margin-top "30px" :margin-bottom "20px"}}
+      [:div {:style {:width "100%" :height "360px" :padding "6px"}}
        [:> Line {:data chart-data
                  :options chart-options}]])
-    [:div {:style {:margin-top "30px" :margin-bottom "20px" :padding "20px" :background-color "#f5f5f5" :border-radius "8px"}}
-     [:h3 {:style {:margin-top "0"}} "Score Development Over Time"]
+    [:div.empty-state
+     [:div.bold "Score Development Over Time"]
      [:p "No data available for chart. Add some sessions with all players present to see the chart."]]))

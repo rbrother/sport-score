@@ -3,7 +3,8 @@
             [reagent.core :as reagent]
             [sports.aws :as aws]
             [sports.log :as log]
-            [sports.routes :as routes]))
+            [sports.routes :as routes]
+            [sports.widgets :as widgets]))
 
 (defn pad2 [n] (let [s (str n)] (if (= 1 (count s)) (str "0" s) s)))
 
@@ -16,17 +17,19 @@
         {:keys [year]} @(rf/subscribe [:navigation])]
     (fn []
       [:div
-       [:div [:span.large.bold "Add Session"]]
-       [:div
-        "Date (YYYY-MM-DD) "
-        [:input {:type :text
-                 :value (:date @local-state)
-                 :on-change (fn [event]
-                              (let [value (-> event .-target .-value)]
-                                (swap! local-state assoc :date value)))}]
-        [:button.navigation
+       [widgets/header {:title "Add Session" :back-url (routes/year-url year)}]
+       [:div.page
+        [:div.card
+         [:label.field-label "Date (YYYY-MM-DD)"]
+         [:input {:type :text
+                  :style {:width "100%"}
+                  :value (:date @local-state)
+                  :on-change (fn [event]
+                               (let [value (-> event .-target .-value)]
+                                 (swap! local-state assoc :date value)))}]]
+        [:button.navigation.primary-block
          {:on-click #(rf/dispatch [::new-session year (:date @local-state)])}
-         "OK"]]])))
+         "Create Session"]]])))
 
 ;; events
 

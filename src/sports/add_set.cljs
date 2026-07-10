@@ -4,7 +4,8 @@
             [sports.calculations :as calc]
             [sports.log :as log]
             [sports.routes :as routes]
-            [sports.util :as util]))
+            [sports.util :as util]
+            [sports.widgets :as widgets]))
 
 (defn update-names [state index value]
   (let [other-index (if (= index 0) 1 0)
@@ -23,11 +24,11 @@
 
 (defn player-selector [index state]
   (let [player-data (get @state index)]
-    [:<>
+    [:div.button-row
      (for [p calc/players]
        ^{:key p} [:button
                   {:class (if (= p (:name player-data)) "navigation" "idle")
-                   :style {:min-width "80px"}
+                   :style {:min-width "30%" :flex "1 1 auto"}
                    :on-click (fn [] (swap! state update-names index p))}
                   p])]))
 
@@ -41,11 +42,10 @@
 
 (defn score-selector [index state]
   (let [player-data (get @state index)]
-    (into [:div]
+    (into [:div.button-row]
           (for [points (point-range index @state)]
             [:button
              {:class (if (= points (:score player-data)) "navigation" "idle")
-              :style {:margin "4px"}
               :on-click (fn [] (swap! state update-score index points))}
              points]))))
 
@@ -53,23 +53,20 @@
   (let [score (get-in @state [0 :score])
         show-other? (or @expanded? (and score (not= score 11)))]
     [:div
-     [:div
+     [:div.button-row
       [:button
-       {:class (if (= score 11) "navigation" "idle")
-        :style {:margin "4px"}
+       {:class (if (= score 11) "win-selected" "win-idle")
         :on-click (fn [] (reset! expanded? false) (swap! state update-score 0 11))}
        "11"]
       [:button
-       {:class (if show-other? "navigation" "idle")
-        :style {:margin "4px"}
+       {:class (if show-other? "win-selected" "win-idle")
         :on-click (fn [] (reset! expanded? true) (swap! state update-score 0 12))}
        "12+"]]
      (when show-other?
-       (into [:div]
+       (into [:div.button-row]
              (for [points (range 12 24)]
                [:button
-                {:class (if (= points score) "navigation" "idle")
-                 :style {:margin "4px"}
+                {:class (if (= points score) "win-selected" "win-idle")
                  :on-click (fn [] (swap! state update-score 0 points))}
                 points])))]))
 
@@ -77,26 +74,27 @@
   (let [local-state (reagent/atom [{:name nil :score nil}
                                    {:name nil :score nil}])
         winner-expanded? (reagent/atom false)
-        {:keys [session]} @(rf/subscribe [:navigation])]
+        {:keys [year session]} @(rf/subscribe [:navigation])]
     (fn []
       (let [ok-to-add? (and (get-in @local-state [0 :name])
                             (get-in @local-state [1 :name]))]
         [:div
-         [:div [:span.large.bold "New Set "]]
-         [:div.winner "WINNER"]
-         [:div.border
-          [:div [player-selector 0 local-state]]
-          [:hr]
-          [winner-score-selector local-state winner-expanded?]]
-         [:div.loser "LOSER"]
-         [:div.border
-           [:div [player-selector 1 local-state]]
+         [widgets/header {:title "New Set" :back-url (routes/session-url year session)}]
+         [:div.page
+          [:div.card
+           [:div.card-title "🏆 Winner"]
+           [player-selector 0 local-state]
+           [:hr]
+           [winner-score-selector local-state winner-expanded?]]
+          [:div.card
+           [:div.card-title "Loser"]
+           [player-selector 1 local-state]
            [:hr]
            [score-selector 1 local-state]]
-         (when ok-to-add?
-           [:div [:button.navigation
-                  {:on-click (when ok-to-add? #(rf/dispatch [::add-game @local-state]))}
-                  "ADD SET !"]])]))))
+          (when ok-to-add?
+            [:button.navigation.primary-block
+             {:on-click (when ok-to-add? #(rf/dispatch [::add-game @local-state]))}
+             "Add Set ✓"])]]))))
 
 ;; events
 

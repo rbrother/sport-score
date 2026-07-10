@@ -20,7 +20,7 @@
 (defn main-panel []
   (let [page @(rf/subscribe [:page])
         status @(rf/subscribe [:status])]
-    [:div
+    [:div.app-shell
      [validation-error-banner]
      (case page
        :years [years/view]
