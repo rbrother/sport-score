@@ -17,5 +17,6 @@
 
 (defn init []
   (re-frame/dispatch-sync [::main/initialize-db])
-  (dev-tools/start! {:state-atom re-frame.db/app-db})
+  (when ^boolean js/goog.DEBUG
+    (dev-tools/start! {:state-atom re-frame.db/app-db}))
   (mount-root))
