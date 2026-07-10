@@ -78,18 +78,6 @@
         (mapcat (fn [[p1 p2]] (scoring-row players-data p1 p2))))
    [scoring-total-row players-data]])
 
-(defn raw-data-editor [sets]
-  (let [state (reagent/atom {:text (util/pprint-str sets)})]
-    (fn []
-      [:<>
-       [:div "Raw data editor"]
-       [:div [:button.navigation
-              {:on-click #(rf/dispatch [::raw-data-edited (:text @state)])}
-              "Apply Raw Data Edits"]]
-       [:div
-        [:textarea {:rows 12, :cols 80, :value (:text @state)
-                    :on-change (util/set-local-state state [:text])}]]])))
-
 (defn view []
   (let [year @(rf/subscribe [:selected-year])
         date @(rf/subscribe [:selected-session])
@@ -100,7 +88,25 @@
       [:button.navigation {:on-click #(rf/dispatch [::set-addition])} "Add set..."]]
      [scoring-table players]
      [sets-table sets]
-     [raw-data-editor sets]]))
+     [:div [:button.navigation
+            {:on-click #(rf/dispatch [::edit-raw-data])}
+            "Edit Session Raw Data"]]]))
+
+(defn raw-data-editor-view []
+  (let [year @(rf/subscribe [:selected-year])
+        date @(rf/subscribe [:selected-session])
+        {:keys [sets]} @(rf/subscribe [:session-data year date])
+        state (reagent/atom {:text (util/pprint-str sets)})]
+    (fn []
+      [:<>
+       [:div [:span.large.bold "Edit Raw Data " date]
+        [:button.navigation {:on-click #(rf/dispatch [::raw-data-cancel])} "← Back to Session"]]
+       [:div
+        [:textarea {:rows 20, :cols 100, :value (:text @state)
+                    :on-change (util/set-local-state state [:text])}]]
+       [:div [:button.navigation
+              {:on-click #(rf/dispatch [::raw-data-edited (:text @state)])}
+              "Save"]]])))
 
 ;; events
 
@@ -108,7 +114,17 @@
   (fn [db _]
     (assoc-in db [:navigation :page] :add-set)))
 
+(rf/reg-event-db ::edit-raw-data
+  (fn [db _]
+    (assoc-in db [:navigation :page] :session-raw-data)))
+
+(rf/reg-event-db ::raw-data-cancel
+  (fn [db _]
+    (assoc-in db [:navigation :page] :session)))
+
 (rf/reg-event-db ::raw-data-edited
   (fn [{{year :year session :session} :navigation :as db} [_ s]]
     (let [data (edn/read-string s)]
-      (assoc-in db [:years year session] data))))
+      (-> db
+          (assoc-in [:years year session] data)
+          (assoc-in [:navigation :page] :session)))))

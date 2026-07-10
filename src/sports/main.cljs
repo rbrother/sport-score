@@ -14,7 +14,7 @@
   (let [page @(rf/subscribe [:page])
         status @(rf/subscribe [:status])]
     [:div
-     (when (not= page :add-set)
+     (when (not (#{:add-set :session-raw-data} page))
        [:div [:span.large.bold "Sport Tracker"]
         [:button.navigation {:on-click #(rf/dispatch [::aws/save])} "Save Data"]
         status])
@@ -23,7 +23,8 @@
        :year [year/view]
        :session [session/view]
        :add-set [add-set/view]
-       :add-session [add-session/view])]))
+       :add-session [add-session/view]
+       :session-raw-data [session/raw-data-editor-view])]))
 
 ;; EVENTS
 
