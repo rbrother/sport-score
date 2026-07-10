@@ -65,7 +65,7 @@
        "12+"]]
      (when show-other?
        (into [:div]
-             (for [points (range 12 20)]
+             (for [points (range 12 24)]
                [:button
                 {:class (if (= points score) "navigation" "idle")
                  :style {:margin "4px"}
