@@ -5,6 +5,7 @@
    causing confusing failures later on."
   (:require [malli.core :as m]
             [malli.error :as me]
+            [reagent.core :as reagent]
             [re-frame.core :as rf]
             [sports.log :as log]))
 
@@ -46,25 +47,40 @@
 (defn explain-str [schema value]
   (-> (m/explain schema value) me/humanize pr-str))
 
+;; Plain reagent atom (deliberately kept outside app-db) holding a human-readable
+;; description of the last app-db validation failure, or nil when app-db is valid.
+;; A UI banner (see sports.main) derefs this atom to warn the user in-app,
+;; in addition to the details already logged to the console.
+(defonce validation-error (reagent/atom nil))
+
 (defn validate!
-  "Throws a descriptive error if db does not conform to AppDb schema."
+  "Checks db against the AppDb schema and updates validation-error
+   accordingly (logging details to the console when invalid).
+   Returns true when db is valid, false otherwise."
   [db event]
-  (when-not (m/validate AppDb db)
-    (let [message (str "Invalid app-db after event " (pr-str event) ": "
-                        (explain-str AppDb db))]
+  (if (m/validate AppDb db)
+    (do (reset! validation-error nil) true)
+    (let [errors (explain-str AppDb db)
+          message (str "Invalid app-db after event " (pr-str event) ": " errors)]
       (log/log :error message)
-      (throw (ex-info message {:event event :errors (explain-str AppDb db) :db db})))))
+      (reset! validation-error message)
+      false)))
 
 (def check-schema
-  "Global interceptor: validates the resulting app-db after every event."
+  "Global interceptor: validates the resulting app-db after every event.
+   If the event's :db effect would produce an invalid app-db, that effect is
+   discarded (app-db is left unchanged) so invalid data can never be
+   committed - the validation-error banner still informs the user."
   (rf/->interceptor
     :id ::check-schema
     :after (fn [context]
              (let [event (get-in context [:coeffects :event])
-                   db (if (contains? (:effects context) :db)
-                        (get-in context [:effects :db])
-                        (get-in context [:coeffects :db]))]
-               (validate! db event))
-             context)))
+                   prev-db (get-in context [:coeffects :db])]
+               (if (contains? (:effects context) :db)
+                 (let [new-db (get-in context [:effects :db])]
+                   (if (validate! new-db event)
+                     context
+                     (assoc-in context [:effects :db] prev-db)))
+                 context)))))
 
 (rf/reg-global-interceptor check-schema)

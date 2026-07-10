@@ -34,10 +34,28 @@
     (is (false? (m/validate schema/AppDb (assoc valid-db :bogus true))))))
 
 (deftest validate!-test
-  (testing "does not throw for a valid db"
-    (is (nil? (schema/validate! valid-db [:some-event]))))
+  (testing "clears validation-error for a valid db, returns true"
+    (is (true? (schema/validate! valid-db [:some-event])))
+    (is (nil? @schema/validation-error)))
 
-  (testing "throws with a descriptive message for an invalid db"
-    (is (thrown-with-msg?
-          js/Error #"Invalid app-db after event"
-          (schema/validate! (assoc valid-db :bogus true) [:some-event])))))
+  (testing "sets a descriptive validation-error for an invalid db, returns false"
+    (is (false? (schema/validate! (assoc valid-db :bogus true) [:some-event])))
+    (is (some? @schema/validation-error))
+    (is (re-find #"Invalid app-db after event" @schema/validation-error))
+    ;; restore to valid state so it doesn't leak into other tests
+    (schema/validate! valid-db [:some-event])))
+
+(deftest check-schema-interceptor-test
+  (testing "keeps a valid new :db effect untouched"
+    (let [context {:coeffects {:event [:some-event] :db valid-db}
+                    :effects {:db (assoc-in valid-db [:navigation :page] :years)}}
+          result ((:after schema/check-schema) context)]
+      (is (= :years (get-in result [:effects :db :navigation :page])))))
+
+  (testing "discards an invalid new :db effect, reverting to the previous db"
+    (let [context {:coeffects {:event [:some-event] :db valid-db}
+                    :effects {:db (assoc valid-db :bogus true)}}
+          result ((:after schema/check-schema) context)]
+      (is (= valid-db (get-in result [:effects :db])))
+      (is (some? @schema/validation-error))
+      (schema/validate! valid-db [:some-event]))))
