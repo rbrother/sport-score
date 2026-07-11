@@ -25,6 +25,7 @@
      (case page
        :years [years/view]
        :year [year/view]
+       :year-raw-data [year/raw-data-editor-view]
        :session [session/view]
        :add-set [add-set/view]
        :add-session [add-session/view]

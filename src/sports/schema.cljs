@@ -30,7 +30,7 @@
 (def Years [:map-of keyword? Year])
 
 (def Page
-  [:enum :years :year :session :add-set :add-session :session-raw-data])
+  [:enum :years :year :year-raw-data :session :add-set :add-session :session-raw-data])
 
 (def Navigation
   [:map {:closed true}

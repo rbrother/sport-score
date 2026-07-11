@@ -14,6 +14,7 @@
 
 (defn years-url [] "/")
 (defn year-url [year] (str "/year/" (name year)))
+(defn year-raw-data-url [year] (str (year-url year) "/raw-data"))
 (defn add-session-url [year] (str "/year/" (name year) "/add-session"))
 (defn session-url [year session] (str "/year/" (name year) "/session/" (name session)))
 (defn add-set-url [year session] (str (session-url year session) "/add-set"))
@@ -53,6 +54,8 @@
     (fn [_] (rf/dispatch [:navigate/years]))]
    [(parse-pattern "/year/:year")
     (fn [{:keys [year]}] (rf/dispatch [:navigate/year (keyword year)]))]
+   [(parse-pattern "/year/:year/raw-data")
+    (fn [{:keys [year]}] (rf/dispatch [:navigate/year-raw-data (keyword year)]))]
    [(parse-pattern "/year/:year/add-session")
     (fn [{:keys [year]}] (rf/dispatch [:navigate/add-session (keyword year)]))]
    [(parse-pattern "/year/:year/session/:session")
@@ -77,6 +80,9 @@
 
 (rf/reg-event-db :navigate/year
   (fn [db [_ year]] (assoc db :navigation {:page :year :year year})))
+
+(rf/reg-event-db :navigate/year-raw-data
+  (fn [db [_ year]] (assoc db :navigation {:page :year-raw-data :year year})))
 
 (rf/reg-event-db :navigate/add-session
   (fn [db [_ year]] (assoc db :navigation {:page :add-session :year year})))

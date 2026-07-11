@@ -44,22 +44,25 @@
                   [player-points-cells players include-in-year-points?]]))
              reverse)))
 
-(defn raw-data-editor []
-  (let [year-data @(rf/subscribe [:current-year-data])
+(defn raw-data-editor-view []
+  (let [year @(rf/subscribe [:selected-year])
+        year-data @(rf/subscribe [:current-year-data])
         state (reagent/atom {:text (util/pprint-str year-data)})]
     (fn []
-      [:div.card
-       [:div.card-title "Raw data editor"]
-       [:div
-        [:textarea {:rows 30, :cols 80, :value (:text @state)
-                    :on-change (util/set-local-state state [:text])}]]
-       [:div.button-row
-        [:button.navigation
-         {:on-click #(rf/dispatch [::raw-data-edited (:text @state)])}
-         "Apply Raw Data Edits"]
-        [:button.idle
-         {:on-click #(rf/dispatch [::import-csv (:text @state)])}
-         "Import CSV"]]])))
+      [:div
+       [widgets/header {:title (str "Edit Raw Data " year)
+                         :back-url (routes/year-url year)}]
+       [:div.page
+        [:div.card
+         [:textarea {:rows 30, :cols 80, :value (:text @state)
+                     :on-change (util/set-local-state state [:text])}]]
+        [:div.button-row
+         [:button.navigation
+          {:on-click #(rf/dispatch [::raw-data-edited (:text @state)])}
+          "Apply Raw Data Edits"]
+         [:button.idle
+          {:on-click #(rf/dispatch [::import-csv (:text @state)])}
+          "Import CSV"]]]])))
 
 (defn totals-line [year-data]
   [:<>
@@ -94,7 +97,11 @@
      [:div.page
       [points-table]
       [:div.chart-card [chart/score-development-chart cumulative-data]]
-      (when debug? [raw-data-editor])]]))
+      (when debug?
+        [:div.center
+         [:button.idle
+          {:on-click #(routes/navigate! (routes/year-raw-data-url year))}
+          "Edit Year Raw Data"]])]]))
 
 ;; EVENTS
 
@@ -102,10 +109,12 @@
   (fn [{{{year :year} :navigation :as db} :db} [_ s]]
     (let [data (edn/read-string s)]
       {:db (assoc-in db [:years year] data)
+       :navigate! (routes/year-url year)
        :dispatch [::aws/save]})))
 
 (rf/reg-event-fx ::import-csv
   (fn [{{{year :year} :navigation :as db} :db} [_ s]]
     (let [data (import/year-data-from-csv s)]
       {:db (assoc-in db [:years year] data)
+       :navigate! (routes/year-url year)
        :dispatch [::aws/save]})))
