@@ -145,6 +145,21 @@ When `npm run watch` (or `npx shadow-cljs watch app browser-test karma-test`) is
 also recompiled automatically; open [http://localhost:8290/](http://localhost:8290/) to run the
 `browser-test` build's tests directly in your browser.
 
+#### End-to-end UI regression tests
+
+There is also a small [Playwright](https://playwright.dev/) suite in `e2e/` that walks through the
+app's real screens (Years -> Year -> Session -> Add Set/Add Session) on a phone-sized viewport,
+checking that the key widgets render and that no screen requires horizontal scrolling. Install the
+browser once with `npx playwright install chromium`, then start the app (`npm run watch` or
+`npx shadow-cljs watch app`) and run:
+
+```sh
+npm run test:e2e
+```
+
+Playwright will reuse an already-running dev server on `http://localhost:8280`, or start one itself
+if none is running.
+
 #### Connecting to the browser REPL from your editor
 
 See
