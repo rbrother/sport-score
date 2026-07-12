@@ -64,7 +64,7 @@
        "12+"]]
      (when show-other?
        (into [:div.button-row]
-             (for [points (range 12 24)]
+             (for [points (range 12 21)]
                [:button
                 {:class (if (= points score) "win-selected" "win-idle")
                  :on-click (fn [] (swap! state update-score 0 points))}
