@@ -19,3 +19,12 @@
 /test-results/
 /playwright-report/
 /blob-report/
+
+# Terraform (state contains resource IDs/attributes best kept out of git;
+# see infra/README.md for how to obtain/manage it)
+/infra/.terraform/
+/infra/*.tfstate
+/infra/*.tfstate.*
+/infra/tfplan
+/infra/*.tfplan
+/infra/.terraform.lock.hcl.bak

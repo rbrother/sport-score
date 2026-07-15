@@ -236,3 +236,11 @@ Please be patient; it may take over 15 seconds to see any output, and over 30 se
 
 The `resources/public/js/compiled` directory is created, containing the compiled `app.js` and
 `manifest.edn` files.
+
+## Deployment
+
+Run `./deploy.sh` to build and publish the app to S3/CloudFront
+(`https://squash.brotherus.net/`).
+
+The underlying AWS resources (S3 bucket, CloudFront distribution, DNS
+records) are managed as code with Terraform in [`infra/`](infra/README.md).
