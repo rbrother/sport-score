@@ -163,6 +163,8 @@ two or three known participants, it is flagged and excluded until corrected.
 The payer suggestion uses the lowest exact yearly balance, breaking ties in
 player order. For an already paid session, it excludes the payer's credit for
 that session while retaining the players' cost shares.
+In the year session list, ⚠ marks sessions without payer information after the
+first recorded payer, including in later years. Earlier sessions are not flagged.
 CSV imports retain existing payments for matching dates and are rejected if
 they would remove a session with a recorded payment.
 

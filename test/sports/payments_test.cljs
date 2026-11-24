@@ -6,6 +6,21 @@
 (def two-player-sets [[{:name "Roope"} {:name "Kari"}]])
 (def three-player-sets (conj two-player-sets [{:name "Niklas"} {:name "Kari"}]))
 
+(deftest missing-payer-sessions-test
+  (let [paid {:sets two-player-sets :payment {:cost-cents 0 :payer "Roope"}}
+        years {:2025 {:2025-12-31 two-player-sets}
+               :2026 {:2026-01-05 two-player-sets
+                      :2026-01-01 two-player-sets
+                      :2026-01-03 paid
+                      :2026-01-04 paid}
+               :2027 {:2027-01-01 two-player-sets}}]
+    (is (= #{[:2026 :2026-01-05] [:2027 :2027-01-01]}
+           (payments/missing-payer-sessions years)))
+    (is (= #{} (payments/missing-payer-sessions
+                 {:2026 {:2026-01-01 two-player-sets}})))
+    (is (= #{} (payments/missing-payer-sessions
+                 {:2025 {:2025-12-31 paid} :2026 {:2026-01-01 two-player-sets}})))))
+
 (deftest format-euros-test
   (testing "rounds to the nearest euro, with halves away from zero"
     (is (= ["€0" "€0" "€1" "€1" "€2"]

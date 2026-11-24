@@ -11,6 +11,19 @@
     (and s (re-matches #"\d{4}-\d{2}-\d{2}" s)
          (not (neg? (compare s "2026-01-01"))))))
 
+(defn missing-payer-sessions [years]
+  (let [sessions (for [[year dates] years
+                       [date session] dates
+                       :when (tracked-date? date)]
+                   {:year year :date date :payer (get-in session [:payment :payer])})
+        first-paid-date (first (sort (keep #(when (:payer %) (:date %)) sessions)))]
+    (if first-paid-date
+      (into #{} (comp (filter #(and (not (:payer %))
+                                     (pos? (compare (:date %) first-paid-date))))
+                      (map (juxt :year :date)))
+            sessions)
+      #{})))
+
 (defn participants [session]
   (let [names (set (map :name (mapcat identity (calc/session-sets session))))]
     (when (and (<= 2 (count names) 3)

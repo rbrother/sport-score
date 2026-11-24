@@ -31,7 +31,7 @@
              (some-> points (.toFixed 1)
                      (mark-ignored (not include?)))]))))
 
-(defn session-rows [year year-data]
+(defn session-rows [year year-data missing-payers]
   (into [:<>]
         (->> year-data
              (sort-by first)
@@ -42,7 +42,11 @@
                   [:div.link {:style {:white-space "nowrap"}
                               :on-click #(routes/navigate! (routes/session-url year date))} date]
                   [:div (count sets)]
-                  [player-points-cells players include-in-year-points?]]))
+                  [player-points-cells players include-in-year-points?]
+                  [:div
+                   (when (contains? missing-payers [year date])
+                     [:span {:role "img" :aria-label "Payer information missing"
+                             :title "Payer information may be missing"} "⚠"])]]))
              reverse)))
 
 (defn raw-data-editor-view []
@@ -68,23 +72,29 @@
 (defn totals-line [year-data]
   [:<>
    [:div] [:div.bold "TOTAL"] [:div]
-   [player-points-cells (:players year-data) true]])
+   [player-points-cells (:players year-data) true]
+   [:div]])
 
 (defn points-table []
   (let [year @(rf/subscribe [:selected-year])
-        year-data @(rf/subscribe [:year-summary year])]
+        years @(rf/subscribe [:years])
+        year-data @(rf/subscribe [:year-summary year])
+        missing-payers (payments/missing-payer-sessions years)]
     [:div.card
      [:div.card-title "Sessions"]
      [:div.table-scroll
-      [:div.grid {:style {:grid-template-columns "20px 84px 30px repeat(3, 46px)"}}
+      [:div.grid {:style {:grid-template-columns "20px 84px 30px repeat(3, 46px) 18px"}}
        [:div.col-header "#"] [:div.col-header "Date"] [:div.col-header "Sets"]
        (into [:<>] (for [p calc/players] [:div.col-header p]))
+       [:div.col-header]
        [:div.row-line]
        [totals-line year-data]
        [:div.row-line]
-       [session-rows year (:sessions year-data)]
+       [session-rows year (:sessions year-data) missing-payers]
        [:div.row-line]
-       [totals-line year-data]]]]))
+       [totals-line year-data]]]
+     (when (some #(= year (first %)) missing-payers)
+       [:div.gray "⚠ Payer information may be missing."])]))
 
 (defn view []
   (let [year @(rf/subscribe [:selected-year])
