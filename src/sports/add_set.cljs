@@ -100,6 +100,7 @@
 
 (rf/reg-event-fx ::add-game [log/intercept]
   (fn [{{{:keys [year session]} :navigation :as db} :db} [_ values]]
-    {:db (update-in db [:years year session] #(conj % values))
+    {:db (update-in db [:years year session]
+                    #(calc/replace-session-sets % (conj (calc/session-sets %) values)))
      :navigate! (routes/session-url year session)
      :dispatch [:sports.aws/save]}))

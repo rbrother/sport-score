@@ -1,6 +1,7 @@
 (ns sports.subs
   (:require [re-frame.core :as rf]
-            [sports.calculations :as calc]))
+            [sports.calculations :as calc]
+            [sports.payments :as payments]))
 
 (rf/reg-sub :status (fn [db _] (:status db)))
 
@@ -13,6 +14,9 @@
 (rf/reg-sub :selected-session :<- [:navigation] (fn [nav _] (:session nav)))
 
 (rf/reg-sub :years (fn [db _] (:years db)))
+
+(rf/reg-sub :payment-balances :<- [:years]
+  (fn [years [_ year]] (payments/balances years year)))
 
 (rf/reg-sub :year-data :<- [:years]
   (fn [years [_ year]] (get years year)))
@@ -38,4 +42,10 @@
     (rf/subscribe [:year-data year]))
   (fn [year-data [_ _year date]]
     (calc/analyze-session (get year-data date))))
+
+(rf/reg-sub :session-record
+  (fn [[_ year _date]]
+    (rf/subscribe [:year-data year]))
+  (fn [year-data [_ _year date]]
+    (get year-data date)))
 

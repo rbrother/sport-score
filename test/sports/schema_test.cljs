@@ -17,6 +17,14 @@
                             (assoc-in valid-db [:years :2024 :2024-05-20]
                                       [[{:name "Roope" :score 11} {:name "Kari"}]])))))
 
+  (testing "accepts payment sessions and rejects invalid payments"
+    (let [session {:sets [[{:name "Roope"} {:name "Kari"}]]
+                   :payment {:cost-cents 1201 :payer "Niklas"}}
+          db (assoc-in valid-db [:years :2024 :2024-05-20] session)]
+      (is (m/validate schema/AppDb db))
+      (is (not (m/validate schema/AppDb (assoc-in db [:years :2024 :2024-05-20 :payment :cost-cents] -1))))
+      (is (not (m/validate schema/AppDb (assoc-in db [:years :2024 :2024-05-20 :payment :payer] "Unknown"))))))
+
   (testing "accepts the initial app-db (no sessions yet, no status)"
     (is (true? (m/validate schema/AppDb {:years {:2023 {} :2024 {}}
                                           :navigation {:page :years}}))))

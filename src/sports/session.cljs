@@ -6,6 +6,7 @@
             [reagent.core :as reagent]
             [sports.aws :as aws]
             [sports.calculations :as calc]
+            [sports.payments :as payments]
             [sports.routes :as routes]
             [sports.util :as util]
             [sports.util :refer [attr=]]
@@ -88,6 +89,7 @@
 (defn view []
   (let [year @(rf/subscribe [:selected-year])
         date @(rf/subscribe [:selected-session])
+        record @(rf/subscribe [:session-record year date])
         {:keys [sets players]} @(rf/subscribe [:session-data year date])]
     [:div
      [widgets/header
@@ -99,6 +101,8 @@
       [totals-table players]
       [scoring-table players]
       [sets-table sets]
+      (when (and record (payments/tracked-date? date))
+        ^{:key (str year "/" date)} [payments/session-payment year date])
       [:div.center
        [:button.idle
         {:on-click #(routes/navigate! (routes/raw-data-url year date))}
@@ -126,7 +130,7 @@
 (rf/reg-event-fx ::raw-data-edited
   (fn [{{{year :year session :session} :navigation :as db} :db} [_ s]]
     (let [data (edn/read-string s)]
-      {:db (assoc-in db [:years year session] data)
+      {:db (update-in db [:years year session] calc/replace-session-sets data)
        :navigate! (routes/session-url year session)
        :dispatch [::aws/save]})))
 

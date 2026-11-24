@@ -5,6 +5,12 @@
 
 (def players ["Roope", "Kari", "Niklas"])
 
+(defn session-sets [session]
+  (if (map? session) (:sets session) session))
+
+(defn replace-session-sets [session sets]
+  (if (map? session) (assoc session :sets sets) sets))
+
 (def player-pairs
   (->> (for [p1 players, p2 players, :when (not= p1 p2)] #{p1 p2})
        distinct
@@ -45,8 +51,9 @@
 (defn sum-of [seq selector-fn]
   (->> seq (map selector-fn) (apply +)))
 
-(defn analyze-session [session-sets]
-  (let [session-players (->> session-sets
+(defn analyze-session [session]
+  (let [session-sets (session-sets session)
+        session-players (->> session-sets
                              (mapcat (fn [[a b]] [(:name a) (:name b)]))
                              set, sort)]
     {:players (->> session-players

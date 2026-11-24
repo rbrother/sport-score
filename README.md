@@ -145,6 +145,31 @@ When `npm run watch` (or `npx shadow-cljs watch app browser-test karma-test`) is
 also recompiled automatically; open [http://localhost:8290/](http://localhost:8290/) to run the
 `browser-test` build's tests directly in your browser.
 
+### Hall rent
+
+On each session from 2026 onwards, record the total rent and who paid it.
+Leave the cost blank to remove a payment; sessions without one count as zero.
+The players recorded in the session's sets share the cost, even if somebody
+else paid. Record sets for at least two players before saving a non-zero cost.
+Each share is rounded to whole cents; any remaining cents are assigned
+deterministically based on the session date. Each year page shows that year's
+balances. Displayed costs and balances are rounded independently to the nearest
+euro, so the displayed balances may not add up to zero. Enter and edit the
+exact cost including cents; the underlying calculations retain cents.
+Balances start at zero each year, assuming debts were settled at year-end;
+positive means a deposit, negative means debt. Editing sets recalculates the
+shares. If a paid session no longer has
+two or three known participants, it is flagged and excluded until corrected.
+The payer suggestion uses the lowest exact yearly balance, breaking ties in
+player order. For an already paid session, it excludes the payer's credit for
+that session while retaining the players' cost shares.
+CSV imports retain existing payments for matching dates and are rejected if
+they would remove a session with a recorded payment.
+
+Payment details are stored with the existing session data. Older app versions
+cannot read sessions with payment details and must not be used to edit or save
+the data after this version is deployed.
+
 #### End-to-end UI regression tests
 
 There is also a small [Playwright](https://playwright.dev/) suite in `e2e/` that walks through the

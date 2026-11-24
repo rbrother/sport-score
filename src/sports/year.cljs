@@ -9,6 +9,7 @@
             [sports.chart :as chart]
             [sports.config :refer [debug?]]
             [sports.import :as import]
+            [sports.payments :as payments]
             [sports.routes :as routes]
             [sports.util :as util :refer [attr=]]
             [sports.widgets :as widgets]))
@@ -96,12 +97,21 @@
                 "+ Session"]}]
      [:div.page
       [points-table]
+      (when (and year (payments/tracked-date? (keyword (str (name year) "-01-01"))))
+        [payments/balance-card year])
       [:div.chart-card [chart/score-development-chart cumulative-data]]
       (when debug?
         [:div.center
          [:button.idle
           {:on-click #(routes/navigate! (routes/year-raw-data-url year))}
           "Edit Year Raw Data"]])]]))
+
+(defn preserve-imported-payments [old-data imported]
+  (let [paid-sessions (filter (fn [[_ session]] (and (map? session) (:payment session))) old-data)]
+    (when (every? #(contains? imported (first %)) paid-sessions)
+      (reduce (fn [data [date session]]
+                (assoc data date (assoc session :sets (get data date))))
+              imported paid-sessions))))
 
 ;; EVENTS
 
@@ -114,7 +124,10 @@
 
 (rf/reg-event-fx ::import-csv
   (fn [{{{year :year} :navigation :as db} :db} [_ s]]
-    (let [data (import/year-data-from-csv s)]
-      {:db (assoc-in db [:years year] data)
-       :navigate! (routes/year-url year)
-       :dispatch [::aws/save]})))
+    (let [data (preserve-imported-payments (get-in db [:years year])
+                                           (import/year-data-from-csv s))]
+      (if data
+        {:db (assoc-in db [:years year] data)
+         :navigate! (routes/year-url year)
+         :dispatch [::aws/save]}
+        {:db (assoc db :status "Import cancelled: it would remove sessions with recorded payments.")}))))

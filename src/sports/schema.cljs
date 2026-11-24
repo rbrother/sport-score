@@ -23,8 +23,19 @@
 ;; All the sets played during one session (one day).
 (def SessionSets [:vector SetPair])
 
+(def Payment
+  [:map {:closed true}
+   [:cost-cents [:int {:min 0 :max 100000000}]]
+   [:payer [:enum "Roope" "Kari" "Niklas"]]])
+
+(def Session
+  [:or SessionSets ;; Support for backward compatibility with the old format where session was just a vector of sets
+   [:map {:closed true}
+    [:sets SessionSets]
+    [:payment Payment]]])
+
 ;; Sessions of one year, keyed by session date, e.g. :2024-05-20
-(def Year [:map-of keyword? SessionSets])
+(def Year [:map-of keyword? Session])
 
 ;; All years, keyed by year id, e.g. :2023 or :2013K
 (def Years [:map-of keyword? Year])

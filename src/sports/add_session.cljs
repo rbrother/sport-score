@@ -36,8 +36,14 @@
 (rf/reg-event-fx ::new-session [log/intercept]
   (fn [{:keys [db]} [_ year date-str]]
     (let [date (keyword date-str)]
-      (if-not (re-matches #"\d\d\d\d-\d\d-\d\d" date-str)
+      (cond
+        (not (re-matches #"\d\d\d\d-\d\d-\d\d" date-str))
         {:db (assoc db :status "Invalid date format, must use YYYY-MM-DD")}
+
+        (contains? (get-in db [:years year]) date)
+        {:db (assoc db :status "A session already exists on this date.")}
+
+        :else
         {:db (assoc-in db [:years year date] [])
          :navigate! (routes/session-url year date)
          :dispatch [::aws/save]}))))

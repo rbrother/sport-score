@@ -22,6 +22,8 @@
         status @(rf/subscribe [:status])]
     [:div.app-shell
      [validation-error-banner]
+     (when status
+       [:div {:role "status" :style {:padding "8px 14px" :white-space "pre-wrap"}} status])
      (case page
        :years [years/view]
        :year [year/view]
