@@ -1,6 +1,6 @@
 (ns sports.core
   (:require
-    [reagent.dom :as rdom]
+    [reagent.dom.client :as rdom]
     [re-frame.core :as re-frame]
     [reagent-dev-tools.core :as dev-tools]
     [sports.styles]
@@ -11,11 +11,13 @@
 
 (defn get-element-by-id [id] (.getElementById js/document id))
 
+(defonce root (atom nil))
+
 (defn ^:dev/after-load mount-root []
   (re-frame/clear-subscription-cache!)
-  (let [root-el (get-element-by-id "app")]
-    (rdom/unmount-component-at-node root-el)
-    (rdom/render [main/main-panel] root-el)))
+  (when-not @root
+    (reset! root (rdom/create-root (get-element-by-id "app"))))
+  (rdom/render @root [main/main-panel]))
 
 (defn init []
   (re-frame/dispatch-sync [::main/initialize-db])

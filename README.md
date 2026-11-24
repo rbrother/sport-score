@@ -65,8 +65,8 @@ Use your preferred editor or IDE that supports Clojure/ClojureScript development
 
 ### Environment Setup
 
-1. Install [JDK 8 or later](https://openjdk.java.net/install/) (Java Development Kit)
-2. Install [Node.js](https://nodejs.org/) (JavaScript runtime environment) which should include
+1. Install [JDK 21 or later](https://openjdk.java.net/install/) (Java Development Kit)
+2. Install [Node.js](https://nodejs.org/) 20 or later (JavaScript runtime environment) which should include
    [NPM](https://docs.npmjs.com/cli/npm) or if your Node.js installation does not include NPM also install it.
 5. Clone this repo and open a terminal in the project root directory
 
